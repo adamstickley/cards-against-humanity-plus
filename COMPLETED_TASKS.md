@@ -115,3 +115,27 @@
   - CahGameRoundController: Emits all game flow events
 - Added 13 unit tests for gateway
 - All 59 tests pass
+
+[Task] Implement player presence/connection tracking 👁️ Matilta Claude - COMPLETE
+- Created PlayerPresenceService for tracking player WebSocket connections
+- Player presence features:
+  - playerConnected(socketId, playerId, sessionCode): Registers connection and updates database
+  - playerDisconnected(socketId): Removes connection and marks player offline in database
+  - updateHeartbeat(socketId): Updates last activity timestamp for connection
+  - isPlayerConnected(playerId): Checks if player has an active connection
+  - getConnectedPlayersInSession(sessionCode): Returns list of online player IDs
+  - cleanupStaleConnections(maxAgeMs): Removes connections with no recent heartbeat
+  - getConnectionStats(): Returns connection statistics per session
+- Enhanced WebSocket gateway with:
+  - Automatic stale connection cleanup (every 60 seconds)
+  - Socket.io ping/pong configuration (25s interval, 60s timeout)
+  - New 'heartbeat' event for client keepalive
+  - New 'getPresence' event to query online players
+  - New 'presenceUpdate' broadcast event when players connect/disconnect
+- API endpoint added:
+  - GET /cards/cah/session/:code/presence - Returns all players with online status
+- Database integration:
+  - Automatically updates is_connected column when players connect/disconnect
+  - Handles reconnection detection (same player, new socket)
+- Added 17 unit tests for presence service
+- All 84 tests pass

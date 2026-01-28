@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { CahGameSessionService } from './cah-game-session.service';
 import { CahCardDealerService } from './cah-card-dealer.service';
-import { CahGameGateway } from '../cah-game-gateway';
+import { CahGameGateway, PlayerPresenceService } from '../cah-game-gateway';
 import { CreateSessionDto, JoinSessionDto } from './dto';
 
 @Controller('session')
@@ -17,6 +17,7 @@ export class CahGameSessionController {
     private readonly sessionService: CahGameSessionService,
     private readonly cardDealerService: CahCardDealerService,
     private readonly gameGateway: CahGameGateway,
+    private readonly presenceService: PlayerPresenceService,
   ) {}
 
   @Post()
@@ -156,6 +157,26 @@ export class CahGameSessionController {
         text: card.card_text,
         cardType: card.card_type,
       })),
+    };
+  }
+
+  @Get(':code/presence')
+  async getSessionPresence(@Param('code') code: string) {
+    const session = await this.sessionService.getSession(code);
+    const connectedPlayerIds =
+      this.presenceService.getConnectedPlayersInSession(code);
+
+    return {
+      sessionCode: session.code,
+      players: session.players.map((p) => ({
+        playerId: p.session_player_id,
+        nickname: p.nickname,
+        isOnline: connectedPlayerIds.includes(p.session_player_id),
+        isConnected: p.is_connected,
+        isHost: p.is_host,
+      })),
+      onlineCount: connectedPlayerIds.length,
+      totalCount: session.players.length,
     };
   }
 }

@@ -32,6 +32,7 @@ export interface ServerToClientEvents {
   playerLeft: (data: { playerId: number; playerCount: number }) => void;
   playerDisconnected: (data: { playerId: number }) => void;
   playerReconnected: (data: { playerId: number }) => void;
+  presenceUpdate: (data: { connectedPlayerIds: number[] }) => void;
   gameStarted: (data: { round: RoundInfo; players: PlayerInfo[] }) => void;
   roundStarted: (data: { round: RoundInfo }) => void;
   cardSubmitted: (data: {
@@ -59,4 +60,6 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   joinSession: (data: { sessionCode: string; playerId: number }) => void;
   leaveSession: (data: { sessionCode: string }) => void;
+  heartbeat: () => void;
+  getPresence: (data: { sessionCode: string }) => void;
 }

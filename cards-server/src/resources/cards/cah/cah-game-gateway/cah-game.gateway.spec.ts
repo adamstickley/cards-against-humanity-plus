@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CahGameGateway } from './cah-game.gateway';
+import { PlayerPresenceService } from './player-presence.service';
 
 describe('CahGameGateway', () => {
   let gateway: CahGameGateway;
@@ -9,9 +10,25 @@ describe('CahGameGateway', () => {
     emit: jest.fn(),
   };
 
+  const mockPresenceService = {
+    playerConnected: jest.fn().mockResolvedValue({ isReconnection: false }),
+    playerDisconnected: jest.fn().mockResolvedValue({}),
+    updateHeartbeat: jest.fn().mockResolvedValue(true),
+    getConnectedPlayersInSession: jest.fn().mockReturnValue([]),
+    cleanupStaleConnections: jest
+      .fn()
+      .mockResolvedValue({ cleaned: 0, playerIds: [] }),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CahGameGateway],
+      providers: [
+        CahGameGateway,
+        {
+          provide: PlayerPresenceService,
+          useValue: mockPresenceService,
+        },
+      ],
     }).compile();
 
     gateway = module.get<CahGameGateway>(CahGameGateway);
@@ -30,37 +47,49 @@ describe('CahGameGateway', () => {
   });
 
   describe('handleDisconnect', () => {
-    it('should handle disconnection without player data', () => {
+    it('should handle disconnection without player data', async () => {
+      mockPresenceService.playerDisconnected.mockResolvedValue({});
       const mockClient = { id: 'test-socket-id', data: {} };
-      expect(() =>
+      await expect(
         gateway.handleDisconnect(mockClient as never),
-      ).not.toThrow();
+      ).resolves.not.toThrow();
     });
 
-    it('should emit playerDisconnected when player data exists', () => {
-      const mockClient = {
-        id: 'test-socket-id',
-        data: { playerId: 1, sessionCode: 'session:ABC123' },
-      };
+    it('should emit playerDisconnected when player data exists', async () => {
+      mockPresenceService.playerDisconnected.mockResolvedValue({
+        playerId: 1,
+        sessionCode: 'ABC123',
+      });
+      mockPresenceService.getConnectedPlayersInSession.mockReturnValue([2, 3]);
 
-      gateway.handleDisconnect(mockClient as never);
+      const mockClient = { id: 'test-socket-id', data: {} };
+
+      await gateway.handleDisconnect(mockClient as never);
 
       expect(mockServer.to).toHaveBeenCalledWith('session:ABC123');
       expect(mockServer.emit).toHaveBeenCalledWith('playerDisconnected', {
         playerId: 1,
       });
+      expect(mockServer.emit).toHaveBeenCalledWith('presenceUpdate', {
+        connectedPlayerIds: [2, 3],
+      });
     });
   });
 
   describe('handleJoinSession', () => {
-    it('should join room and store player data', () => {
+    it('should join room and store player data', async () => {
+      mockPresenceService.playerConnected.mockResolvedValue({
+        isReconnection: false,
+      });
+      mockPresenceService.getConnectedPlayersInSession.mockReturnValue([1]);
+
       const mockClient = {
         id: 'test-socket-id',
         data: {},
         join: jest.fn(),
       };
 
-      const result = gateway.handleJoinSession(mockClient as never, {
+      const result = await gateway.handleJoinSession(mockClient as never, {
         sessionCode: 'ABC123',
         playerId: 1,
       });
@@ -70,25 +99,85 @@ describe('CahGameGateway', () => {
         playerId: 1,
         sessionCode: 'session:ABC123',
       });
-      expect(result).toEqual({ success: true, room: 'session:ABC123' });
+      expect(result).toEqual({
+        success: true,
+        room: 'session:ABC123',
+        isReconnection: false,
+      });
+    });
+
+    it('should emit playerReconnected on reconnection', async () => {
+      mockPresenceService.playerConnected.mockResolvedValue({
+        isReconnection: true,
+      });
+      mockPresenceService.getConnectedPlayersInSession.mockReturnValue([1]);
+
+      const mockClient = {
+        id: 'test-socket-id',
+        data: {},
+        join: jest.fn(),
+      };
+
+      await gateway.handleJoinSession(mockClient as never, {
+        sessionCode: 'ABC123',
+        playerId: 1,
+      });
+
+      expect(mockServer.to).toHaveBeenCalledWith('session:ABC123');
+      expect(mockServer.emit).toHaveBeenCalledWith('playerReconnected', {
+        playerId: 1,
+      });
     });
   });
 
   describe('handleLeaveSession', () => {
-    it('should leave room and clear player data', () => {
+    it('should leave room and clear player data', async () => {
+      mockPresenceService.playerDisconnected.mockResolvedValue({
+        playerId: 1,
+        sessionCode: 'ABC123',
+      });
+      mockPresenceService.getConnectedPlayersInSession.mockReturnValue([]);
+
       const mockClient = {
         id: 'test-socket-id',
         data: { playerId: 1 },
         leave: jest.fn(),
       };
 
-      const result = gateway.handleLeaveSession(mockClient as never, {
+      const result = await gateway.handleLeaveSession(mockClient as never, {
         sessionCode: 'ABC123',
       });
 
       expect(mockClient.leave).toHaveBeenCalledWith('session:ABC123');
       expect(mockClient.data).toEqual({});
       expect(result).toEqual({ success: true });
+    });
+  });
+
+  describe('handleHeartbeat', () => {
+    it('should update heartbeat via presence service', async () => {
+      mockPresenceService.updateHeartbeat.mockResolvedValue(true);
+      const mockClient = { id: 'test-socket-id' };
+
+      const result = await gateway.handleHeartbeat(mockClient as never);
+
+      expect(result.success).toBe(true);
+      expect(result.timestamp).toBeDefined();
+    });
+  });
+
+  describe('handleGetPresence', () => {
+    it('should return connected player IDs', () => {
+      mockPresenceService.getConnectedPlayersInSession.mockReturnValue([
+        1, 2, 3,
+      ]);
+      const mockClient = { id: 'test-socket-id' };
+
+      const result = gateway.handleGetPresence(mockClient as never, {
+        sessionCode: 'ABC123',
+      });
+
+      expect(result).toEqual({ connectedPlayerIds: [1, 2, 3] });
     });
   });
 
@@ -120,6 +209,17 @@ describe('CahGameGateway', () => {
       expect(mockServer.emit).toHaveBeenCalledWith('playerLeft', {
         playerId: 1,
         playerCount: 1,
+      });
+    });
+  });
+
+  describe('emitPresenceUpdate', () => {
+    it('should emit presenceUpdate event to room', () => {
+      gateway.emitPresenceUpdate('ABC123', [1, 2, 3]);
+
+      expect(mockServer.to).toHaveBeenCalledWith('session:ABC123');
+      expect(mockServer.emit).toHaveBeenCalledWith('presenceUpdate', {
+        connectedPlayerIds: [1, 2, 3],
       });
     });
   });

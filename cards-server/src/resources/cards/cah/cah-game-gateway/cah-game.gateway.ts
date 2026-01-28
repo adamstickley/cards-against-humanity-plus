@@ -4,6 +4,7 @@ import {
   SubscribeMessage,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
   ConnectedSocket,
   MessageBody,
 } from '@nestjs/websockets';
@@ -16,6 +17,7 @@ import {
   RoundInfo,
   SubmissionInfo,
 } from './game-events.types';
+import { PlayerPresenceService } from './player-presence.service';
 
 interface SocketData {
   playerId?: number;
@@ -28,35 +30,56 @@ interface SocketData {
     origin: '*',
   },
   namespace: '/game',
+  pingInterval: 25000,
+  pingTimeout: 60000,
 })
 export class CahGameGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
   @WebSocketServer()
   server: Server<ClientToServerEvents, ServerToClientEvents>;
 
   private readonly logger = new Logger(CahGameGateway.name);
-  private playerSockets = new Map<number, string>();
+  private cleanupInterval: ReturnType<typeof setInterval> | null = null;
+
+  constructor(private readonly presenceService: PlayerPresenceService) {}
+
+  afterInit() {
+    this.logger.log('WebSocket Gateway initialized');
+
+    this.cleanupInterval = setInterval(async () => {
+      const { cleaned, playerIds } =
+        await this.presenceService.cleanupStaleConnections(120000);
+      if (cleaned > 0) {
+        this.logger.log(
+          `Cleaned up ${cleaned} stale connections: ${playerIds.join(', ')}`,
+        );
+      }
+    }, 60000);
+  }
 
   handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`);
 
-    const socketData = client.data as SocketData;
-    if (socketData.playerId && socketData.sessionCode) {
-      this.playerSockets.delete(socketData.playerId);
+    const { playerId, sessionCode } =
+      await this.presenceService.playerDisconnected(client.id);
 
-      this.server.to(socketData.sessionCode).emit('playerDisconnected', {
-        playerId: socketData.playerId,
-      });
+    if (playerId && sessionCode) {
+      const roomName = this.getRoomName(sessionCode);
+      this.server.to(roomName).emit('playerDisconnected', { playerId });
+
+      const connectedPlayers =
+        this.presenceService.getConnectedPlayersInSession(sessionCode);
+      this.emitPresenceUpdate(sessionCode, connectedPlayers);
     }
   }
 
   @SubscribeMessage('joinSession')
-  handleJoinSession(
+  async handleJoinSession(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { sessionCode: string; playerId: number },
   ) {
@@ -66,38 +89,71 @@ export class CahGameGateway
     client.join(roomName);
     client.data = { playerId, sessionCode: roomName } as SocketData;
 
-    const existingSocketId = this.playerSockets.get(playerId);
-    if (existingSocketId && existingSocketId !== client.id) {
+    const { isReconnection } = await this.presenceService.playerConnected(
+      client.id,
+      playerId,
+      sessionCode,
+    );
+
+    if (isReconnection) {
       this.server.to(roomName).emit('playerReconnected', { playerId });
     }
 
-    this.playerSockets.set(playerId, client.id);
+    const connectedPlayers =
+      this.presenceService.getConnectedPlayersInSession(sessionCode);
+    this.emitPresenceUpdate(sessionCode, connectedPlayers);
 
     this.logger.log(
-      `Player ${playerId} joined session ${sessionCode} (room: ${roomName})`,
+      `Player ${playerId} joined session ${sessionCode} (room: ${roomName}, reconnection: ${isReconnection})`,
     );
 
-    return { success: true, room: roomName };
+    return { success: true, room: roomName, isReconnection };
   }
 
   @SubscribeMessage('leaveSession')
-  handleLeaveSession(
+  async handleLeaveSession(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { sessionCode: string },
   ) {
     const roomName = this.getRoomName(data.sessionCode);
     client.leave(roomName);
 
-    const socketData = client.data as SocketData;
-    if (socketData.playerId) {
-      this.playerSockets.delete(socketData.playerId);
-    }
+    const { playerId, sessionCode } =
+      await this.presenceService.playerDisconnected(client.id);
 
     client.data = {};
+
+    if (playerId && sessionCode) {
+      const connectedPlayers =
+        this.presenceService.getConnectedPlayersInSession(sessionCode);
+      this.emitPresenceUpdate(sessionCode, connectedPlayers);
+    }
 
     this.logger.log(`Client ${client.id} left session ${data.sessionCode}`);
 
     return { success: true };
+  }
+
+  @SubscribeMessage('heartbeat')
+  async handleHeartbeat(@ConnectedSocket() client: Socket) {
+    const success = await this.presenceService.updateHeartbeat(client.id);
+    return { success, timestamp: Date.now() };
+  }
+
+  @SubscribeMessage('getPresence')
+  handleGetPresence(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { sessionCode: string },
+  ) {
+    const connectedPlayers = this.presenceService.getConnectedPlayersInSession(
+      data.sessionCode,
+    );
+    return { connectedPlayerIds: connectedPlayers };
+  }
+
+  emitPresenceUpdate(sessionCode: string, connectedPlayerIds: number[]) {
+    const roomName = this.getRoomName(sessionCode);
+    this.server.to(roomName).emit('presenceUpdate', { connectedPlayerIds });
   }
 
   emitPlayerJoined(
