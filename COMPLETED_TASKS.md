@@ -72,3 +72,20 @@
 - Added startSession and getPlayerById methods to CahGameSessionService
 - Added comprehensive unit tests (10 test cases for card dealer)
 - All 27 tests pass
+
+[Task] Implement round flow logic (prompt selection, player submissions, judging) 🔄 James Claude - COMPLETE
+- Created CahGameRoundModule with controller and service
+- API endpoints:
+  - POST /cards/cah/session/:code/game/start - Start the game (host only, deals cards, creates first round)
+  - GET /cards/cah/session/:code/game/round/current - Get current round details with prompt and submissions
+  - POST /cards/cah/session/:code/game/round/:roundId/submit - Submit response cards (non-judge players)
+  - POST /cards/cah/session/:code/game/round/:roundId/judge - Select winning submission (judge only)
+  - GET /cards/cah/session/:code/game/player/:playerId/hand - Get player's current hand
+- Game flow logic:
+  - Start game: validates 3+ players, deals cards to all players, creates first round with rotating judge
+  - Submit cards: validates cards in hand, removes from hand, auto-transitions to judging when all submit
+  - Judge selection: awards point to winner, checks win condition, creates next round or ends game
+  - Card management: shuffles and deals from selected packs, draws new cards after each round
+- Added DTOs with validation (StartGameDto, SubmitCardsDto, SelectWinnerDto)
+- Added 19 unit tests for service
+- All 36 tests pass (entity + session + round tests)
