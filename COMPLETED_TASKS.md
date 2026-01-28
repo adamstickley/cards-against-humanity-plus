@@ -33,3 +33,20 @@
 - Added type definitions (CahGameSessionStatus, CahGameRoundStatus)
 - Added unit tests for all new entities
 - All linting and tests pass
+
+[Task] Implement create/join room API endpoints 🚪 James Claude - COMPLETE
+- Created CahGameSessionModule with controller and service
+- API endpoints:
+  - POST /cards/cah/session - Create a new game session with settings and card packs
+  - POST /cards/cah/session/:code/join - Join an existing session by code
+  - GET /cards/cah/session/:code - Get full session details with players and card packs
+  - GET /cards/cah/session/:code/players - Get list of players in session
+- Added DTOs with class-validator validation (CreateSessionDto, JoinSessionDto)
+- Added ValidationPipe to main.ts for automatic request validation
+- Installed class-validator and class-transformer dependencies
+- Business logic includes:
+  - Unique 6-character alphanumeric session code generation
+  - Transaction-based session creation (session + host player + card packs)
+  - Validation: card sets exist, session not full, nickname not taken, session in waiting state
+- Added comprehensive unit tests (10 test cases)
+- All 17 tests pass
