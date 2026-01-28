@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { configService } from './config.service';
 
 class TypeORMService {
@@ -9,7 +9,9 @@ class TypeORMService {
   }
 
   dataSource(): DataSource {
-    this.datasource = new DataSource(configService.getTypeOrmConfig());
+    this.datasource = new DataSource(
+      configService.getTypeOrmConfig() as DataSourceOptions,
+    );
     return this.datasource;
   }
 

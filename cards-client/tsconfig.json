@@ -1,6 +1,6 @@
 {
   "exclude": ["node_modules"],
-  "files": ["./typings.d.ts", "./jsx-conditionals.d.ts"],
+  "include": ["src/**/*"],
   "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
