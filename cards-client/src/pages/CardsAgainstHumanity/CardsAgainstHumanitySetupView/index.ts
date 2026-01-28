@@ -1,1 +1,1 @@
-export * from "./CardsAgainstHumanitySetupView";
+export * from './CardsAgainstHumanitySetupView';

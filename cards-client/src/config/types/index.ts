@@ -1,1 +1,1 @@
-export * from "./EnvironmentName";
+export * from './EnvironmentName';

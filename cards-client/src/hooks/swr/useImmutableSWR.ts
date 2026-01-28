@@ -1,4 +1,4 @@
-import useSWR, { Fetcher, Key, SWRConfiguration, SWRResponse } from "swr";
+import useSWR, { Fetcher, Key, SWRConfiguration, SWRResponse } from 'swr';
 
 export const immutableSWRConfig = {
   dedupingInterval: undefined,
@@ -12,7 +12,7 @@ export const immutableSWRConfig = {
 export const useImmutableSWR = <Data = any, Error = any>(
   key: Key | null,
   fetcher: Fetcher<Data> | null,
-  options?: SWRConfiguration<Data, Error>
+  options?: SWRConfiguration<Data, Error>,
 ): SWRResponse<Data, Error> =>
   useSWR(key, fetcher, {
     ...options,

@@ -1,8 +1,8 @@
-import { Develop } from "./Develop";
-import { Environment } from "./Environment";
-import { Local } from "./Local";
-import { Master } from "./Master";
-import { EnvironmentName } from "./types";
+import { Develop } from './Develop';
+import { Environment } from './Environment';
+import { Local } from './Local';
+import { Master } from './Master';
+import { EnvironmentName } from './types';
 
 export class EnvironmentConfigurator {
   private static environment: Environment;
@@ -15,20 +15,20 @@ export class EnvironmentConfigurator {
     if (!EnvironmentConfigurator.environment) {
       const stage = process.env.REACT_APP_STAGE || process.env.STAGE;
       const message =
-        "There is no process.env.STAGE or process.env.REACT_APP_STAGE set.";
+        'There is no process.env.STAGE or process.env.REACT_APP_STAGE set.';
       if (!stage) {
         if (
-          typeof window !== "undefined" &&
-          window.location.hostname.includes("localhost")
+          typeof window !== 'undefined' &&
+          window.location.hostname.includes('localhost')
         ) {
           throw new Error(message);
         } else {
-          console.error(message + "Returning master configuration.");
-          EnvironmentConfigurator.configureByStage("master");
+          console.error(message + 'Returning master configuration.');
+          EnvironmentConfigurator.configureByStage('master');
         }
       } else {
         EnvironmentConfigurator.configureByStage(
-          (stage as EnvironmentName) || "master"
+          (stage as EnvironmentName) || 'master',
         );
       }
     }
@@ -42,15 +42,15 @@ export class EnvironmentConfigurator {
       EnvironmentConfigurator.environment.getName() !== stage
     ) {
       console.warn(
-        `Environment was configured as ${EnvironmentConfigurator.environment.getName()} and is being re-configured as ${stage}`
+        `Environment was configured as ${EnvironmentConfigurator.environment.getName()} and is being re-configured as ${stage}`,
       );
     }
     switch (stage) {
-      case "local":
+      case 'local':
         EnvironmentConfigurator.setEnvironment(Local);
         return;
 
-      case "develop":
+      case 'develop':
         EnvironmentConfigurator.setEnvironment(Develop);
         return;
 

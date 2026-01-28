@@ -1,1 +1,1 @@
-export const HOST = "https://cardgamesonline.com";
+export const HOST = 'https://cardgamesonline.com';

@@ -1,2 +1,2 @@
-export * from "./assertDefined";
-export * from "./generatePrettyDurationString";
+export * from './assertDefined';
+export * from './generatePrettyDurationString';

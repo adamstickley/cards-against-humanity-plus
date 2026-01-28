@@ -1,3 +1,3 @@
-export * from "./HomepageView";
-export * from "./GameListView";
-export * from "./CardsAgainstHumanity";
+export * from './HomepageView';
+export * from './GameListView';
+export * from './CardsAgainstHumanity';

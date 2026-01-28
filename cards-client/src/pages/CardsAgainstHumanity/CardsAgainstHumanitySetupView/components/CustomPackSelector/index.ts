@@ -1,1 +1,1 @@
-export * from "./CustomPackSelector";
+export * from './CustomPackSelector';

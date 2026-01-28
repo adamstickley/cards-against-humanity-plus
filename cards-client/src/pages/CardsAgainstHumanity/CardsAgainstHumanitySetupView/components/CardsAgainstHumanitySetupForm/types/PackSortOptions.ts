@@ -1,1 +1,1 @@
-export type PackSortOptions = "alphabetical" | "popularity";
+export type PackSortOptions = 'alphabetical' | 'popularity';

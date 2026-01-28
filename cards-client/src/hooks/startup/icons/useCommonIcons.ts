@@ -6,8 +6,8 @@ import {
   faHome,
   faRocketLaunch,
   faSearch,
-} from "@fortawesome/pro-solid-svg-icons";
-import { faStar } from "@fortawesome/pro-regular-svg-icons";
+} from '@fortawesome/pro-solid-svg-icons';
+import { faStar } from '@fortawesome/pro-regular-svg-icons';
 
 export const useCommonIcons = () => {
   const uiIcons = [faHome, faFloppyDisk, faSearch];

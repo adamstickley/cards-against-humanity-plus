@@ -1,5 +1,5 @@
-import { DuplicatePolicy } from "./DuplicatePolicy";
-import { SwappingPolicy } from "./SwappingPolicy";
+import { DuplicatePolicy } from './DuplicatePolicy';
+import { SwappingPolicy } from './SwappingPolicy';
 
 export interface IGameSettings {
   ruleRounds?: number; // validate: min 1, max 50

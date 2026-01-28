@@ -1,8 +1,8 @@
 // import { AxiosPromise } from "axios";
 // import { mutate } from "swr";
 
-import { IApiClient } from "./types";
-import { CahApi, DefaultApiClient, GameApi } from "./clients";
+import { IApiClient } from './types';
+import { CahApi, DefaultApiClient, GameApi } from './clients';
 
 export class Api {
   // public readonly User: UserApi;

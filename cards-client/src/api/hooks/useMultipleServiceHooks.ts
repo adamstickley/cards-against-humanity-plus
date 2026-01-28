@@ -1,4 +1,4 @@
-import { flatMap } from "lodash";
+import { flatMap } from 'lodash';
 
 interface IServiceMeta {
   loading: boolean;
@@ -13,9 +13,9 @@ export interface IMultipleServiceHooksMeta<TResponses> {
 }
 
 function isMultipleServiceHooksMeta(
-  meta: IMultipleServiceHooksMeta<any> | IServiceMeta
+  meta: IMultipleServiceHooksMeta<any> | IServiceMeta,
 ): meta is IMultipleServiceHooksMeta<any> {
-  return meta.hasOwnProperty("errors");
+  return meta.hasOwnProperty('errors');
 }
 
 function NotUndefined<T>(x: T | undefined): x is T {
@@ -23,10 +23,10 @@ function NotUndefined<T>(x: T | undefined): x is T {
 }
 
 export function combinedServiceHookMeta(
-  metas: (IServiceMeta | IMultipleServiceHooksMeta<any>)[]
-): Omit<IMultipleServiceHooksMeta<any>, "responses"> {
+  metas: (IServiceMeta | IMultipleServiceHooksMeta<any>)[],
+): Omit<IMultipleServiceHooksMeta<any>, 'responses'> {
   const errors = flatMap(metas, (m) =>
-    isMultipleServiceHooksMeta(m) ? m.errors : m.error
+    isMultipleServiceHooksMeta(m) ? m.errors : m.error,
   ).filter(NotUndefined);
   const hasErrors = errors.length > 0;
   const loading = !hasErrors && metas.some((m) => m.loading);
@@ -34,7 +34,7 @@ export function combinedServiceHookMeta(
 }
 
 export function simplifiedServiceHookMeta(
-  metas: (IServiceMeta | IMultipleServiceHooksMeta<any>)[]
+  metas: (IServiceMeta | IMultipleServiceHooksMeta<any>)[],
 ): IServiceMeta {
   const { loading, errors, hasErrors } = combinedServiceHookMeta(metas);
   const error = hasErrors ? errors[0] : undefined;

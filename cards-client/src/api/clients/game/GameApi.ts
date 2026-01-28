@@ -1,9 +1,9 @@
-import { IApiClient } from "../../types";
+import { IApiClient } from '../../types';
 
 export class GameApi {
   private client: IApiClient;
 
-  private baseUrl = "/game";
+  private baseUrl = '/game';
 
   constructor(client: IApiClient) {
     this.client = client;
@@ -16,8 +16,8 @@ export class GameApi {
   public async get(gameName: string) {
     // TODO: type
     const { data } = await this.client.request<any>(
-      "GET",
-      this.urlForGet(gameName)
+      'GET',
+      this.urlForGet(gameName),
     );
     return data;
   }
@@ -28,7 +28,7 @@ export class GameApi {
 
   public async getAll() {
     // TODO: type
-    const { data } = await this.client.request<any>("GET", this.urlForGetAll());
+    const { data } = await this.client.request<any>('GET', this.urlForGetAll());
     return data;
   }
 }

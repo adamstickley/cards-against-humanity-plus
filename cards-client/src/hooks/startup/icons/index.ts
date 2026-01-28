@@ -1,1 +1,1 @@
-export * from "./useCommonIcons";
+export * from './useCommonIcons';

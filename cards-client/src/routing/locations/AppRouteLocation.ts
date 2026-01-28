@@ -1,12 +1,12 @@
-import { BaseRouteLocation, RouteParams } from "./BaseRouteLocation";
-import { HOST } from "./Environment";
+import { BaseRouteLocation, RouteParams } from './BaseRouteLocation';
+import { HOST } from './Environment';
 
 export class AppRouteLocation<
   TParams extends RouteParams = any,
   TSearch extends RouteParams = any,
-  TState = {} | null | undefined
+  TState = {} | null | undefined,
 > extends BaseRouteLocation<TParams, TSearch, TState> {
-  private readonly baseTitle = "Games";
+  private readonly baseTitle = 'Games';
 
   public exact: boolean;
 
@@ -18,7 +18,7 @@ export class AppRouteLocation<
     base: string,
     subPath: string,
     title?: string,
-    exact: boolean = true
+    exact: boolean = true,
   ) {
     super(base, subPath);
     this.exact = exact;

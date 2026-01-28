@@ -1,2 +1,2 @@
-export * from "./icons";
-export * from "./useFontAwesomeIcons";
+export * from './icons';
+export * from './useFontAwesomeIcons';

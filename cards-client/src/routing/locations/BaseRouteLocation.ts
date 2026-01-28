@@ -1,6 +1,6 @@
-import _ from "lodash";
-import stringify from "qs-stringify";
-import { generatePath } from "react-router-dom";
+import _ from 'lodash';
+import stringify from 'qs-stringify';
+import { generatePath } from 'react-router-dom';
 
 export interface LocationDescriptorObject<S> {
   pathname?: string;
@@ -10,7 +10,7 @@ export interface LocationDescriptorObject<S> {
   key?: string;
 }
 
-const SPLIT_REGEX = new RegExp("[/?&]");
+const SPLIT_REGEX = new RegExp('[/?&]');
 
 export interface RouteParams {
   [paramName: string]: string | number | undefined;
@@ -19,12 +19,12 @@ interface RouteParamsStrict {
   [paramName: string]: string | undefined;
 }
 
-const wildcard = "/*";
+const wildcard = '/*';
 
 export class BaseRouteLocation<
   TParams extends RouteParams,
   TSearch extends RouteParams,
-  TState = any
+  TState = any,
 > {
   public readonly base: string;
 
@@ -39,9 +39,9 @@ export class BaseRouteLocation<
   public readonly defaultSearch?: RouteParams;
 
   constructor(base: string, path: string, search?: RouteParams) {
-    this.base = base.startsWith("/") ? base : `/${base}`;
+    this.base = base.startsWith('/') ? base : `/${base}`;
     this.path = path;
-    this.fullPath = `${this.base}${path ? `/${path}` : ""}`;
+    this.fullPath = `${this.base}${path ? `/${path}` : ''}`;
     this.baseWildcard = this.base + wildcard;
     this.pathWildcard = path + wildcard;
     // console.log("PROPS:");
@@ -61,7 +61,7 @@ export class BaseRouteLocation<
   }
 
   public absolutePathWithParams(
-    args: { params: TParams; search?: TSearch } | TParams
+    args: { params: TParams; search?: TSearch } | TParams,
   ) {
     const path = this.generatePath(args);
     const { origin } = window.location;
@@ -69,7 +69,7 @@ export class BaseRouteLocation<
   }
 
   public generatePath(
-    args: { params: TParams; search?: TSearch } | TParams
+    args: { params: TParams; search?: TSearch } | TParams,
   ): string {
     const { search, params } = args.params
       ? (args as { params: TParams; search?: TSearch })
@@ -82,20 +82,20 @@ export class BaseRouteLocation<
           agg[paramKey] = _.isNumber(param) ? param.toString() : param;
           return agg;
         },
-        {}
+        {},
       );
       return (
         generatePath(this.fullPath, parsedParams) +
-        (queryString ? `?${queryString}` : "")
+        (queryString ? `?${queryString}` : '')
       );
     } catch (e) {
       if (e instanceof TypeError) {
         console.error(
           `Missing parameters when generating path for ${this.fullPath}`,
-          params
+          params,
         );
         // a required parameter was not passed
-        return "";
+        return '';
       }
       throw e;
     }
@@ -136,7 +136,7 @@ export class BaseRouteLocation<
       const testPathComponent = testPathComponents[index];
 
       const componentsAreEqual = _.isEqual(c, testPathComponent);
-      const isParamValue = _.includes(c, ":");
+      const isParamValue = _.includes(c, ':');
 
       return componentsAreEqual || isParamValue;
     });

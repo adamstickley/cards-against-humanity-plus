@@ -1,4 +1,4 @@
-import { AxiosError } from "axios";
+import { AxiosError } from 'axios';
 
 export const getExceptionMessages = (error: Error): string[] => {
   const errorData = (error as AxiosError)?.response?.data;

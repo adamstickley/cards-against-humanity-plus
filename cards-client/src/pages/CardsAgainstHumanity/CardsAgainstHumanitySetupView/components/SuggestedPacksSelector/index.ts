@@ -1,1 +1,1 @@
-export * from "./SuggestedPacksSelector";
+export * from './SuggestedPacksSelector';

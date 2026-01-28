@@ -1,5 +1,5 @@
-import { useApiContext } from "../../../api";
-import { useSWRService } from "../../../hooks";
+import { useApiContext } from '../../../api';
+import { useSWRService } from '../../../hooks';
 
 export const useCahCardSets = () => {
   const api = useApiContext();
@@ -11,6 +11,6 @@ export const useCahCardSet = (cardSetId?: number) => {
   const api = useApiContext();
 
   return useSWRService(cardSetId ? api.Cah.urlForGetSet(cardSetId) : null, () =>
-    api.Cah.getSet(cardSetId!)
+    api.Cah.getSet(cardSetId!),
   );
 };

@@ -1,8 +1,8 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
-import { cahLocations, gameLocations } from "../../routing";
-import { GameListView } from "./GameListView";
-import { CardsAgainstHumanityRouter } from "../CardsAgainstHumanity";
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { cahLocations, gameLocations } from '../../routing';
+import { CardsAgainstHumanityRouter } from '../CardsAgainstHumanity';
+import { GameListView } from './GameListView';
 
 export const GameListRouter: React.FC = () => {
   return (

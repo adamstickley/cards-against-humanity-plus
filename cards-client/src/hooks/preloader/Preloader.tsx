@@ -1,6 +1,6 @@
-import * as React from "react";
-import { ErrorMessage, Loading } from "../../components";
-import { IPreloaderProps } from "./IPreloaderProps";
+import * as React from 'react';
+import { ErrorMessage, Loading } from '../../components';
+import { IPreloaderProps } from './IPreloaderProps';
 
 const defaultErrorContent = (error: Error) => (
   <ErrorMessage message={error.message} title="Something went wrong" />
@@ -26,4 +26,4 @@ export const Preloader: React.FC<IPreloaderProps> = ({
   return children ? <>{children()}</> : null;
 };
 
-Preloader.displayName = "Preloader";
+Preloader.displayName = 'Preloader';

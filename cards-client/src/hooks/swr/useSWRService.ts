@@ -1,6 +1,6 @@
-import { isUndefined } from "lodash";
-import useSWR, { Fetcher, Key, SWRConfiguration, SWRResponse } from "swr";
-import { useImmutableSWR } from "./useImmutableSWR";
+import { isUndefined } from 'lodash';
+import useSWR, { Fetcher, Key, SWRConfiguration, SWRResponse } from 'swr';
+import { useImmutableSWR } from './useImmutableSWR';
 
 export interface IServiceMeta {
   loading: boolean;
@@ -17,7 +17,7 @@ export function swrToServiceResponse<T>({
 export function useSWRService<Data = any>(
   key: Key | null,
   fetcher: Fetcher<Data> | null,
-  options?: SWRConfiguration<Data, Error>
+  options?: SWRConfiguration<Data, Error>,
 ): [Data | undefined, IServiceMeta] {
   return swrToServiceResponse(useSWR(key, fetcher, options));
 }
@@ -25,7 +25,7 @@ export function useSWRService<Data = any>(
 export function useImmutableSWRService<Data = any>(
   key: Key | null,
   fetcher: Fetcher<Data> | null,
-  options?: SWRConfiguration<Data, Error>
+  options?: SWRConfiguration<Data, Error>,
 ): [Data | undefined, IServiceMeta] {
   return swrToServiceResponse(useImmutableSWR(key, fetcher, options));
 }

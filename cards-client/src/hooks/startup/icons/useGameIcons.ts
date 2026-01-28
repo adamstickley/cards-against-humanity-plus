@@ -24,7 +24,7 @@ import {
   faScroll,
   faSpade,
   faTreasureChest,
-} from "@fortawesome/pro-solid-svg-icons";
+} from '@fortawesome/pro-solid-svg-icons';
 
 export const useGameIcons = () => {
   const playingCards = [faCardClub, faCardDiamond, faCardHeart, faCardSpade];

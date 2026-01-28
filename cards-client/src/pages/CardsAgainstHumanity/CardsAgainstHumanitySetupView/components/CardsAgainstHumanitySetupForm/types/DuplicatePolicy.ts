@@ -1,1 +1,1 @@
-export type DuplicatePolicy = "allow" | "remove";
+export type DuplicatePolicy = 'allow' | 'remove';

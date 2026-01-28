@@ -1,6 +1,6 @@
-import { IGame } from "../../types";
-import { IServiceMeta, useSWRService } from "../swr";
-import { useApiContext } from "../../api";
+import { IGame } from '../../types';
+import { IServiceMeta, useSWRService } from '../swr';
+import { useApiContext } from '../../api';
 
 export const useGames = (): [IGame[] | undefined, IServiceMeta] => {
   const api = useApiContext();
@@ -8,10 +8,10 @@ export const useGames = (): [IGame[] | undefined, IServiceMeta] => {
 };
 
 export const useGame = (
-  gameName?: string
+  gameName?: string,
 ): [IGame | undefined, IServiceMeta] => {
   const api = useApiContext();
   return useSWRService(gameName ? api.Game.urlForGet(gameName) : null, () =>
-    api.Game.get(gameName!)
+    api.Game.get(gameName!),
   );
 };

@@ -1,5 +1,3 @@
-[Fix] Linting updated to latest versions - James Claude 🔧 (in progress)
-
 [Main Feature] Simple functional Cards against humanity game
 
 [Main Feature] Multiplayer support

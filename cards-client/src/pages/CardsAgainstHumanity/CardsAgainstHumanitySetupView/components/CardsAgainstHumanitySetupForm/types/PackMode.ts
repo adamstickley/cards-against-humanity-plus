@@ -1,1 +1,1 @@
-export type PackMode = "suggested" | "custom";
+export type PackMode = 'suggested' | 'custom';

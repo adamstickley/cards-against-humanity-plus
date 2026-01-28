@@ -1,8 +1,8 @@
-import { Environment } from "./Environment";
+import { Environment } from './Environment';
 
-export const Local = new Environment("local", {
+export const Local = new Environment('local', {
   debug: true,
-  apiBase: "http://localhost:3001",
-  appBasePath: "http://localhost:3000",
-  appDomain: "localhost:3000",
+  apiBase: 'http://localhost:3001',
+  appBasePath: 'http://localhost:3000',
+  appDomain: 'localhost:3000',
 });

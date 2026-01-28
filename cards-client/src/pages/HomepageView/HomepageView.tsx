@@ -1,9 +1,9 @@
-import React from "react";
-import { GameGrid } from "./components";
-import { Page } from "../../components";
+import React from 'react';
+import { Page } from '../../components';
+import { GameGrid } from './components';
 
 export const HomepageView: React.FC = () => (
-  <Page title="Welcome! Pick a game." titleProps={{ mb: "lg" }}>
+  <Page title="Welcome! Pick a game." titleProps={{ mb: 'lg' }}>
     <GameGrid />
   </Page>
 );

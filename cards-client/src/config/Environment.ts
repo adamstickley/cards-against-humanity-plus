@@ -1,4 +1,4 @@
-import { EnvironmentName } from "./types";
+import { EnvironmentName } from './types';
 
 interface Config {
   debug: boolean;
@@ -31,27 +31,27 @@ export class Environment {
   }
 
   public get isProduction() {
-    return this.name === "master";
+    return this.name === 'master';
   }
 
   public isDebug() {
     return this.debug;
   }
 
-  public generateApiRoute(pathname: string = "/") {
+  public generateApiRoute(pathname: string = '/') {
     this.validatePath(pathname);
     return this.apiBase + pathname;
   }
 
-  public generateAppRoute(pathname: string = "/") {
+  public generateAppRoute(pathname: string = '/') {
     this.validatePath(pathname);
     return this.appBasePath + pathname;
   }
 
   private validatePath(pathname: string): never | void {
-    if (!pathname.startsWith("/")) {
+    if (!pathname.startsWith('/')) {
       throw new Error(
-        `Attempt to generate path failed, make sure it starts with a '/'`
+        `Attempt to generate path failed, make sure it starts with a '/'`,
       );
     }
   }

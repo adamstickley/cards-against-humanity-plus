@@ -1,1 +1,1 @@
-export type EnvironmentName = "master" | "develop" | "local";
+export type EnvironmentName = 'master' | 'develop' | 'local';

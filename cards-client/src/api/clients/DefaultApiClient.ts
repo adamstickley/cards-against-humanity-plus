@@ -1,5 +1,5 @@
-import axios, { AxiosInstance, AxiosResponse, Method } from "axios";
-import { IApiClient } from "../types";
+import axios, { AxiosInstance, AxiosResponse, Method } from 'axios';
+import { IApiClient } from '../types';
 
 export class DefaultApiClient implements IApiClient {
   protected cardsApi: AxiosInstance;
@@ -12,7 +12,7 @@ export class DefaultApiClient implements IApiClient {
     // Handle a 401 unauthorised
     this.cardsApi.interceptors.response.use(
       undefined,
-      this.unauthorisedHandler
+      this.unauthorisedHandler,
     );
 
     // Log any errors
@@ -36,7 +36,7 @@ export class DefaultApiClient implements IApiClient {
   public async request<TResponseData = any>(
     method: Method,
     url: string,
-    data?: Record<string, any>
+    data?: Record<string, any>,
   ): Promise<AxiosResponse<TResponseData>> {
     const headers = {};
     return this.cardsApi.request({

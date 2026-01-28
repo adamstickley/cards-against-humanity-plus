@@ -1,2 +1,2 @@
-export * from "./GameListView";
-export * from "./GameListRouter";
+export * from './GameListView';
+export * from './GameListRouter';

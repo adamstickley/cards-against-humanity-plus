@@ -1,1 +1,1 @@
-export type SwappingPolicy = "allow" | "limited" | "disallow";
+export type SwappingPolicy = 'allow' | 'limited' | 'disallow';

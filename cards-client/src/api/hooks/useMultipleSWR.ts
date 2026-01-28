@@ -1,4 +1,4 @@
-import { SWRResponse } from "swr";
+import { SWRResponse } from 'swr';
 
 export interface IMultipleSWRMeta<TResponses> {
   responses: TResponses;
@@ -11,9 +11,9 @@ export type MultipleSWRData<
   TResponses extends Record<string, SWRResponse<any, Error>> = Record<
     string,
     SWRResponse<any, Error>
-  >
+  >,
 > = {
-  [Property in keyof TResponses]: NonNullable<TResponses[Property]["data"]>;
+  [Property in keyof TResponses]: NonNullable<TResponses[Property]['data']>;
 };
 
 /**
@@ -24,9 +24,9 @@ export function useMultipleSWR<
   TResponses extends Record<string, SWRResponse<any, Error>> = Record<
     string,
     SWRResponse<any, Error>
-  >
+  >,
 >(
-  responses: TResponses
+  responses: TResponses,
 ): [data: MultipleSWRData<TResponses>, meta: IMultipleSWRMeta<TResponses>] {
   const errors = Object.values(responses)
     .map((r) => r.error)
@@ -36,7 +36,7 @@ export function useMultipleSWR<
       result[key] = responses[key].data;
       return result;
     },
-    {} as MultipleSWRData<TResponses>
+    {} as MultipleSWRData<TResponses>,
   );
   const hasErrors = errors.length > 0;
   const meta = {

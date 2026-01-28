@@ -1,11 +1,11 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
 import {
   CardsAgainstHumanityRouter,
   GameListRouter,
   HomepageView,
-} from "./pages";
-import { cahLocations, gameLocations } from "./routing";
+} from './pages';
+import { cahLocations, gameLocations } from './routing';
 
 export const MainRouter: React.FC = () => {
   return (
