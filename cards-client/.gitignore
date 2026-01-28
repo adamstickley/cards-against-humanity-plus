@@ -40,3 +40,5 @@ yarn-error.log*
 lerna-debug.log*
 packages/app/.eslintcache
 selenium-server-standalone-3.13.0.jar
+
+.env
