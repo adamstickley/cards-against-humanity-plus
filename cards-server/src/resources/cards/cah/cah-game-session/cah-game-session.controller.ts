@@ -179,4 +179,17 @@ export class CahGameSessionController {
       totalCount: session.players.length,
     };
   }
+
+  @Get(':code/scoreboard')
+  async getScoreboard(@Param('code') code: string) {
+    return this.sessionService.getScoreboard(code);
+  }
+
+  @Get(':code/player/:playerId/score-history')
+  async getPlayerScoreHistory(
+    @Param('code') code: string,
+    @Param('playerId', ParseIntPipe) playerId: number,
+  ) {
+    return this.sessionService.getPlayerScoreHistory(code, playerId);
+  }
 }

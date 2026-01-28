@@ -10,8 +10,16 @@ import {
   CahSessionPlayerEntity,
   CahSessionCardPackEntity,
   CahCardSetEntity,
+  CahGameRoundEntity,
 } from '../../../../entities';
-import { CreateSessionDto, JoinSessionDto } from './dto';
+import {
+  CreateSessionDto,
+  JoinSessionDto,
+  ScoreboardDto,
+  ScoreboardPlayerDto,
+  PlayerScoreHistoryDto,
+  RoundWinDto,
+} from './dto';
 
 @Injectable()
 export class CahGameSessionService {
@@ -24,6 +32,8 @@ export class CahGameSessionService {
     private readonly cardPackRepo: Repository<CahSessionCardPackEntity>,
     @InjectRepository(CahCardSetEntity)
     private readonly cardSetRepo: Repository<CahCardSetEntity>,
+    @InjectRepository(CahGameRoundEntity)
+    private readonly roundRepo: Repository<CahGameRoundEntity>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -202,6 +212,127 @@ export class CahGameSessionService {
     }
 
     return player;
+  }
+
+  async getScoreboard(code: string): Promise<ScoreboardDto> {
+    const session = await this.sessionRepo.findOne({
+      where: { code: code.toUpperCase() },
+      relations: ['players'],
+    });
+
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
+
+    const roundsWonByPlayer = await this.roundRepo
+      .createQueryBuilder('round')
+      .select('round.winner_player_id', 'winnerId')
+      .addSelect('COUNT(*)', 'roundsWon')
+      .where('round.session_id = :sessionId', {
+        sessionId: session.session_id,
+      })
+      .andWhere('round.winner_player_id IS NOT NULL')
+      .groupBy('round.winner_player_id')
+      .getRawMany<{ winnerId: number; roundsWon: string }>();
+
+    const roundsWonMap = new Map(
+      roundsWonByPlayer.map((r) => [r.winnerId, parseInt(r.roundsWon, 10)]),
+    );
+
+    const sortedPlayers = [...session.players].sort(
+      (a, b) => b.score - a.score,
+    );
+
+    const players: ScoreboardPlayerDto[] = sortedPlayers.map(
+      (player, index) => ({
+        playerId: player.session_player_id,
+        nickname: player.nickname,
+        score: player.score,
+        roundsWon: roundsWonMap.get(player.session_player_id) || 0,
+        isHost: player.is_host,
+        isConnected: player.is_connected,
+        rank: index + 1,
+      }),
+    );
+
+    const topScore = players.length > 0 ? players[0].score : 0;
+    const leadersCount = players.filter((p) => p.score === topScore).length;
+    const isTied = leadersCount > 1 && topScore > 0;
+
+    return {
+      sessionCode: session.code,
+      scoreToWin: session.score_to_win,
+      currentRound: session.current_round,
+      gameStatus: session.status,
+      players,
+      leader: topScore > 0 ? players[0] : null,
+      isTied,
+    };
+  }
+
+  async getPlayerScoreHistory(
+    code: string,
+    playerId: number,
+  ): Promise<PlayerScoreHistoryDto> {
+    const session = await this.sessionRepo.findOne({
+      where: { code: code.toUpperCase() },
+      relations: ['players'],
+    });
+
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
+
+    const player = session.players.find(
+      (p) => p.session_player_id === playerId,
+    );
+
+    if (!player) {
+      throw new NotFoundException('Player not found in this session');
+    }
+
+    const wonRounds = await this.roundRepo.find({
+      where: {
+        session_id: session.session_id,
+        winner_player_id: playerId,
+      },
+      relations: [
+        'prompt_card',
+        'submissions',
+        'submissions.cards',
+        'submissions.cards.card',
+      ],
+      order: { round_number: 'ASC' },
+    });
+
+    const roundsWon: RoundWinDto[] = wonRounds.map((round) => {
+      const winningSubmission = round.submissions.find(
+        (s) => s.session_player_id === playerId,
+      );
+
+      const winningCards =
+        winningSubmission?.cards
+          .sort((a, b) => a.card_order - b.card_order)
+          .map((c) => ({
+            cardId: c.card.card_id,
+            text: c.card.card_text,
+          })) || [];
+
+      return {
+        roundId: round.round_id,
+        roundNumber: round.round_number,
+        promptText: round.prompt_card?.card_text || '',
+        winningCards,
+        wonAt: round.created_at,
+      };
+    });
+
+    return {
+      playerId: player.session_player_id,
+      nickname: player.nickname,
+      totalScore: player.score,
+      roundsWon,
+    };
   }
 
   private async generateUniqueCode(): Promise<string> {

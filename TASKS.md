@@ -18,7 +18,7 @@ Subtasks:
 [Main Feature] Scoring system
 
 Subtasks:
-- [Task] Track points per player in database
+- [Task] Track points per player in database 📊 Billy Claude - COMPLETE
 - [Task] Display scoreboard during game
 - [Task] Implement win condition (target score reached)
 

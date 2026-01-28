@@ -172,3 +172,27 @@
 - Added play route to cahLocations.ts (/cah/play/:code)
 - Updated router to include the play view
 - All linting passes with no errors
+
+[Task] Track points per player in database 📊 Billy Claude - COMPLETE
+- Points tracking already implemented in CahSessionPlayerEntity (score column)
+- Score incrementing already implemented in CahGameRoundService.selectWinner
+- Enhanced with dedicated scoreboard and score history endpoints:
+- New DTOs:
+  - ScoreboardDto: Full scoreboard with player rankings, leader, tie detection
+  - ScoreboardPlayerDto: Individual player score data with rank
+  - PlayerScoreHistoryDto: Player's complete score breakdown
+  - RoundWinDto: Details of each round a player won
+- New API endpoints:
+  - GET /cards/cah/session/:code/scoreboard - Returns ranked scoreboard with:
+    - All players sorted by score descending
+    - Rounds won count per player
+    - Leader identification
+    - Tie detection when multiple players share top score
+    - Game status and score-to-win threshold
+  - GET /cards/cah/session/:code/player/:playerId/score-history - Returns:
+    - Player's total score
+    - List of all rounds won with prompt text and winning cards
+    - Round numbers and timestamps
+- Added CahGameRoundEntity to CahGameSessionModule for round data access
+- Added 5 unit tests for scoreboard and score history methods
+- All 90 tests pass
