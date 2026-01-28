@@ -5,9 +5,12 @@ import {
   CahSessionPlayerEntity,
   CahSessionCardPackEntity,
   CahCardSetEntity,
+  CahCardEntity,
+  CahPlayerHandEntity,
 } from '../../../../entities';
 import { CahGameSessionController } from './cah-game-session.controller';
 import { CahGameSessionService } from './cah-game-session.service';
+import { CahCardDealerService } from './cah-card-dealer.service';
 
 @Module({
   imports: [
@@ -16,10 +19,12 @@ import { CahGameSessionService } from './cah-game-session.service';
       CahSessionPlayerEntity,
       CahSessionCardPackEntity,
       CahCardSetEntity,
+      CahCardEntity,
+      CahPlayerHandEntity,
     ]),
   ],
   controllers: [CahGameSessionController],
-  providers: [CahGameSessionService],
-  exports: [CahGameSessionService],
+  providers: [CahGameSessionService, CahCardDealerService],
+  exports: [CahGameSessionService, CahCardDealerService],
 })
 export class CahGameSessionModule {}

@@ -165,6 +165,45 @@ export class CahGameSessionService {
     return session.players;
   }
 
+  async startSession(code: string): Promise<CahGameSessionEntity> {
+    const session = await this.sessionRepo.findOne({
+      where: { code: code.toUpperCase() },
+      relations: ['players'],
+    });
+
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
+
+    if (session.status !== 'waiting') {
+      throw new BadRequestException('Session has already started');
+    }
+
+    const connectedPlayers = session.players.filter((p) => p.is_connected);
+    if (connectedPlayers.length < 3) {
+      throw new BadRequestException(
+        'At least 3 connected players are required to start',
+      );
+    }
+
+    session.status = 'in_progress';
+    session.current_round = 1;
+
+    return this.sessionRepo.save(session);
+  }
+
+  async getPlayerById(playerId: number): Promise<CahSessionPlayerEntity> {
+    const player = await this.playerRepo.findOne({
+      where: { session_player_id: playerId },
+    });
+
+    if (!player) {
+      throw new NotFoundException('Player not found');
+    }
+
+    return player;
+  }
+
   private async generateUniqueCode(): Promise<string> {
     const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const codeLength = 6;

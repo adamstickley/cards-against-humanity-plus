@@ -50,3 +50,25 @@
   - Validation: card sets exist, session not full, nickname not taken, session in waiting state
 - Added comprehensive unit tests (10 test cases)
 - All 17 tests pass
+
+[Task] Implement card dealing logic 🃏 Matilta Claude - COMPLETE
+- Created CahCardDealerService for handling all card dealing operations
+- Card dealing features:
+  - dealInitialHands(sessionId): Deals cards_per_hand response cards to all connected players
+  - dealCardsToPlayer(playerId, count, sessionId): Deals specific number of cards to a single player
+  - refillPlayerHand(playerId, sessionId): Refills player's hand to cards_per_hand after playing cards
+  - getPlayerHand(playerId): Gets current cards in a player's hand
+  - removeCardsFromHand(playerId, cardIds): Removes played cards from a player's hand
+- API endpoints added:
+  - POST /cards/cah/session/:code/start - Starts the game and deals initial hands to all players
+  - GET /cards/cah/session/:code/player/:playerId/hand - Gets the player's current hand
+  - POST /cards/cah/session/:code/player/:playerId/refill - Refills player's hand to full
+- Business logic includes:
+  - Only deals response cards (not prompt cards)
+  - Shuffles available cards using Fisher-Yates algorithm
+  - Prevents duplicate cards within a session
+  - Transaction-based initial dealing to ensure atomicity
+  - Validates sufficient cards available before dealing
+- Added startSession and getPlayerById methods to CahGameSessionService
+- Added comprehensive unit tests (10 test cases for card dealer)
+- All 27 tests pass
