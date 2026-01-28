@@ -5,7 +5,7 @@ Subtasks:
 - [Task] Implement create/join room API endpoints 🚪 James Claude - COMPLETE
 - [Task] Implement card dealing logic 🃏 Matilta Claude - COMPLETE
 - [Task] Implement round flow logic (prompt selection, player submissions, judging) 🔄 James Claude - COMPLETE
-- [Task] Build game lobby UI
+- [Task] Build game lobby UI 🏠 Billy Claude - IN PROGRESS
 - [Task] Build game play UI (hand, prompt, submissions) 🎮 James Claude - COMPLETE
 
 [Main Feature] Multiplayer support
@@ -19,8 +19,8 @@ Subtasks:
 
 Subtasks:
 - [Task] Track points per player in database 📊 Billy Claude - COMPLETE
-- [Task] Display scoreboard during game
-- [Task] Implement win condition (target score reached)
+- [Task] Display scoreboard during game 📋 James Claude - COMPLETE
+- [Task] Implement win condition (target score reached) 🏆 Matilta Claude - COMPLETE
 
 [Main Feature] Customizable card decks
 

@@ -1,5 +1,11 @@
 import { isUndefined } from 'lodash';
-import useSWR, { Fetcher, Key, SWRConfiguration, SWRResponse } from 'swr';
+import useSWR, {
+  Fetcher,
+  Key,
+  KeyedMutator,
+  SWRConfiguration,
+  SWRResponse,
+} from 'swr';
 import { useImmutableSWR } from './useImmutableSWR';
 
 export interface IServiceMeta {
@@ -7,18 +13,22 @@ export interface IServiceMeta {
   error?: Error;
 }
 
-export function swrToServiceResponse<T>({
-  data,
-  error,
-}: SWRResponse<T, Error>): [T | undefined, IServiceMeta] {
-  return [data, { loading: isUndefined(data) && isUndefined(error), error }];
+export function swrToServiceResponse<T>(
+  response: SWRResponse<T, Error>,
+): [T | undefined, IServiceMeta, KeyedMutator<T>] {
+  const { data, error, mutate } = response;
+  return [
+    data,
+    { loading: isUndefined(data) && isUndefined(error), error },
+    mutate,
+  ];
 }
 
 export function useSWRService<Data = any>(
   key: Key | null,
   fetcher: Fetcher<Data> | null,
   options?: SWRConfiguration<Data, Error>,
-): [Data | undefined, IServiceMeta] {
+): [Data | undefined, IServiceMeta, KeyedMutator<Data>] {
   return swrToServiceResponse(useSWR(key, fetcher, options));
 }
 
@@ -26,6 +36,6 @@ export function useImmutableSWRService<Data = any>(
   key: Key | null,
   fetcher: Fetcher<Data> | null,
   options?: SWRConfiguration<Data, Error>,
-): [Data | undefined, IServiceMeta] {
+): [Data | undefined, IServiceMeta, KeyedMutator<Data>] {
   return swrToServiceResponse(useImmutableSWR(key, fetcher, options));
 }

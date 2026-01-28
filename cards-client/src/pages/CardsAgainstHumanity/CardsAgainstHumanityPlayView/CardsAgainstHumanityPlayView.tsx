@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -10,8 +10,11 @@ import {
   Text,
 } from '@radix-ui/themes';
 import { useApiContext } from '../../../api';
-import { useCahCurrentRound, useCahPlayerHand } from '../hooks';
-import { ICahPlayer } from '../types';
+import {
+  useCahCurrentRound,
+  useCahPlayerHand,
+  useCahScoreboard,
+} from '../hooks';
 import {
   PromptCard,
   PlayerHand,
@@ -19,35 +22,21 @@ import {
   Scoreboard,
   RoundStatus,
   RoundWinner,
+  GameOverView,
 } from './components';
 
 // TODO: This should come from session storage or context after joining
 const MOCK_CURRENT_PLAYER_ID = 1;
-const MOCK_PLAYERS: ICahPlayer[] = [
-  { playerId: 1, nickname: 'You', score: 0, isHost: true, isConnected: true },
-  {
-    playerId: 2,
-    nickname: 'Player 2',
-    score: 0,
-    isHost: false,
-    isConnected: true,
-  },
-  {
-    playerId: 3,
-    nickname: 'Player 3',
-    score: 0,
-    isHost: false,
-    isConnected: true,
-  },
-];
-const MOCK_SCORE_TO_WIN = 7;
 
 export const CardsAgainstHumanityPlayView: React.FC = () => {
   const { code } = useParams<{ code: string }>();
+  const navigate = useNavigate();
   const api = useApiContext();
 
   const [roundData, roundMeta] = useCahCurrentRound(code);
   const [handData, handMeta] = useCahPlayerHand(code, MOCK_CURRENT_PLAYER_ID);
+  const [scoreboardData, scoreboardMeta, scoreboardMutate] =
+    useCahScoreboard(code);
 
   const [selectedCardIds, setSelectedCardIds] = useState<number[]>([]);
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<
@@ -55,9 +44,16 @@ export const CardsAgainstHumanityPlayView: React.FC = () => {
   >(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSelectingWinner, setIsSelectingWinner] = useState(false);
+  const [isGameOver, setIsGameOver] = useState(false);
 
   const round = roundData?.round;
   const hand = handData?.cards || [];
+  const players = useMemo(
+    () => scoreboardData?.players || [],
+    [scoreboardData?.players],
+  );
+  const scoreToWin = scoreboardData?.scoreToWin || 7;
+  const gameStatus = scoreboardData?.gameStatus;
 
   const isJudge = round?.judge.playerId === MOCK_CURRENT_PLAYER_ID;
   const hasSubmitted = useMemo(() => {
@@ -66,6 +62,13 @@ export const CardsAgainstHumanityPlayView: React.FC = () => {
     }
     return round.submissions.some((s) => s.playerId === MOCK_CURRENT_PLAYER_ID);
   }, [round]);
+
+  const gameWinner = useMemo(() => {
+    if (!isGameOver && gameStatus !== 'completed') {
+      return null;
+    }
+    return players.find((p) => p.score >= scoreToWin) || players[0];
+  }, [isGameOver, gameStatus, players, scoreToWin]);
 
   const requiredCards = round?.promptCard.pick || 1;
 
@@ -117,22 +120,48 @@ export const CardsAgainstHumanityPlayView: React.FC = () => {
 
     setIsSelectingWinner(true);
     try {
-      await api.CahGame.selectWinner(
+      const result = await api.CahGame.selectWinner(
         code,
         round.roundId,
         MOCK_CURRENT_PLAYER_ID,
         selectedSubmissionId,
       );
       setSelectedSubmissionId(null);
+
+      if (result.gameOver) {
+        await scoreboardMutate();
+        setIsGameOver(true);
+      }
     } catch (error) {
       console.error('Failed to select winner:', error);
     } finally {
       setIsSelectingWinner(false);
     }
-  }, [code, round, selectedSubmissionId, api]);
+  }, [code, round, selectedSubmissionId, api, scoreboardMutate]);
+
+  const handlePlayAgain = useCallback(async () => {
+    if (!code) {
+      return;
+    }
+
+    setIsGameOver(false);
+    try {
+      await api.CahGame.startGame(code, MOCK_CURRENT_PLAYER_ID);
+      await scoreboardMutate();
+    } catch (error) {
+      console.error('Failed to start new game:', error);
+    }
+  }, [code, api, scoreboardMutate]);
+
+  const handleBackToLobby = useCallback(() => {
+    if (!code) {
+      return;
+    }
+    navigate(`/cah/session/${code}`);
+  }, [code, navigate]);
 
   // Loading state
-  if (roundMeta.loading || handMeta.loading) {
+  if (roundMeta.loading || handMeta.loading || scoreboardMeta.loading) {
     return (
       <Flex align="center" justify="center" style={{ minHeight: '50vh' }}>
         <Spinner size="3" />
@@ -141,15 +170,31 @@ export const CardsAgainstHumanityPlayView: React.FC = () => {
   }
 
   // Error state
-  if (roundMeta.error || handMeta.error) {
+  if (roundMeta.error || handMeta.error || scoreboardMeta.error) {
     return (
       <Container size="2" p="6">
         <Heading size="5" color="red" mb="2">
           Error Loading Game
         </Heading>
         <Text color="gray">
-          {roundMeta.error?.message || handMeta.error?.message}
+          {roundMeta.error?.message ||
+            handMeta.error?.message ||
+            scoreboardMeta.error?.message}
         </Text>
+      </Container>
+    );
+  }
+
+  // Game over state - show winner screen
+  if (gameWinner) {
+    return (
+      <Container size="2" p="4">
+        <GameOverView
+          winner={gameWinner}
+          players={players}
+          onPlayAgain={handlePlayAgain}
+          onBackToLobby={handleBackToLobby}
+        />
       </Container>
     );
   }
@@ -172,7 +217,7 @@ export const CardsAgainstHumanityPlayView: React.FC = () => {
       ? round.submissions.find((s) => s.playerId === round.winnerPlayerId)
       : null;
   const winnerPlayer = winnerSubmission
-    ? MOCK_PLAYERS.find((p) => p.playerId === winnerSubmission.playerId)
+    ? players.find((p) => p.playerId === winnerSubmission.playerId)
     : null;
 
   return (
@@ -186,13 +231,13 @@ export const CardsAgainstHumanityPlayView: React.FC = () => {
               status={round.status}
               judgeName={round.judge.nickname}
               submissionsCount={round.submissions.length}
-              totalPlayers={MOCK_PLAYERS.length}
+              totalPlayers={players.length}
             />
             <Scoreboard
-              players={MOCK_PLAYERS}
+              players={players}
               currentPlayerId={MOCK_CURRENT_PLAYER_ID}
               judgePlayerId={round.judge.playerId}
-              scoreToWin={MOCK_SCORE_TO_WIN}
+              scoreToWin={scoreToWin}
             />
           </Flex>
         </Box>

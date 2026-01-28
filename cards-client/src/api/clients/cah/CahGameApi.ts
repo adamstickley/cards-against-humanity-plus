@@ -2,6 +2,7 @@ import { IApiClient } from '../../types';
 import {
   ICahRound,
   ICahPlayerHand,
+  ICahScoreboard,
 } from '../../../pages/CardsAgainstHumanity/types';
 
 interface StartGameResponse {
@@ -121,6 +122,18 @@ export class CahGameApi {
       'POST',
       `${this.getBaseUrl(code)}/round/${roundId}/judge`,
       { judgePlayerId, winningSubmissionId },
+    );
+    return data;
+  }
+
+  public urlForGetScoreboard(code: string): string {
+    return `/cards/cah/session/${code}/scoreboard`;
+  }
+
+  public async getScoreboard(code: string): Promise<ICahScoreboard> {
+    const { data } = await this.client.request<ICahScoreboard>(
+      'GET',
+      this.urlForGetScoreboard(code),
     );
     return data;
   }

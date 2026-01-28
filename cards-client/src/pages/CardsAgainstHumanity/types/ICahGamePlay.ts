@@ -53,3 +53,23 @@ export interface ICahGameState {
   currentRound: number;
   players: ICahPlayer[];
 }
+
+export interface ICahScoreboardPlayer {
+  playerId: number;
+  nickname: string;
+  score: number;
+  roundsWon: number;
+  isHost: boolean;
+  isConnected: boolean;
+  rank: number;
+}
+
+export interface ICahScoreboard {
+  sessionCode: string;
+  scoreToWin: number;
+  currentRound: number;
+  gameStatus: string;
+  players: ICahScoreboardPlayer[];
+  leader: ICahScoreboardPlayer | null;
+  isTied: boolean;
+}

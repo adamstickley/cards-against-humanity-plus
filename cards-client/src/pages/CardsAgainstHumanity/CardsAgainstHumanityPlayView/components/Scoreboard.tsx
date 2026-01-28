@@ -1,10 +1,17 @@
 import React from 'react';
 import { Box, Card, Flex, Heading, Text } from '@radix-ui/themes';
 import { PersonIcon, StarFilledIcon } from '@radix-ui/react-icons';
-import { ICahPlayer } from '../../types';
+
+interface ScoreboardPlayer {
+  playerId: number;
+  nickname: string;
+  score: number;
+  isHost: boolean;
+  isConnected: boolean;
+}
 
 interface ScoreboardProps {
-  players: ICahPlayer[];
+  players: ScoreboardPlayer[];
   currentPlayerId?: number;
   judgePlayerId?: number;
   scoreToWin: number;

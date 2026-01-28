@@ -198,3 +198,44 @@
 - Added CahGameRoundEntity to CahGameSessionModule for round data access
 - Added 5 unit tests for scoreboard and score history methods
 - All 90 tests pass
+
+[Task] Display scoreboard during game 📋 James Claude - COMPLETE
+- Connected frontend scoreboard component to real backend data
+- New client-side features:
+  - Added ICahScoreboard and ICahScoreboardPlayer types to match backend DTOs
+  - Added getScoreboard() method to CahGameApi client
+  - Added useCahScoreboard() hook for fetching scoreboard data with polling
+  - Updated CardsAgainstHumanityPlayView to use real scoreboard data instead of mock data
+  - Scoreboard displays:
+    - All players sorted by score (ranking)
+    - Current player highlighting
+    - Card Czar badge for current judge
+    - Score to win target
+  - Score updates via 3-second polling (until WebSocket integration is complete)
+- Updated Scoreboard component to accept flexible player type interface
+- Fixed useMemo dependency issue for stable players array reference
+- All linting and tests pass (99 server tests, 0 lint errors)
+
+[Task] Implement win condition (target score reached) 🏆 Matilta Claude - COMPLETE
+- Client-side win condition integration with existing backend logic
+- Key changes:
+  - Added isGameOver state tracking in CardsAgainstHumanityPlayView
+  - Detects game over from both API response (gameOver: true from selectWinner) and scoreboard status
+  - Displays GameOverView component when a player reaches the score_to_win threshold
+  - GameOverView shows:
+    - Winner announcement with trophy icon
+    - Final scores sorted by rank
+    - "Play Again" button to start a new game
+    - "Back to Lobby" button to return to session lobby
+  - Added handlePlayAgain callback to restart game (calls startGame API)
+  - Added handleBackToLobby callback for navigation
+- Utility enhancements:
+  - Extended useSWRService to return mutate function for cache invalidation
+  - Updated useGames hook to work with new useSWRService return type
+- Backend logic was already implemented:
+  - Winner detection: winner.score >= session.score_to_win
+  - Session status set to 'completed' when game ends
+  - gameOver: boolean returned in selectWinner response
+  - gameEnded WebSocket event already emitted
+- All linting passes with no errors
+- All 99 server tests pass

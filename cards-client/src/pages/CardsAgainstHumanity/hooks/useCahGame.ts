@@ -1,6 +1,6 @@
 import { useApiContext } from '../../../api';
 import { useSWRService } from '../../../hooks';
-import { ICahRound, ICahPlayerHand } from '../types';
+import { ICahRound, ICahPlayerHand, ICahScoreboard } from '../types';
 
 export const useCahCurrentRound = (code: string | undefined) => {
   const api = useApiContext();
@@ -21,6 +21,16 @@ export const useCahPlayerHand = (
   return useSWRService<ICahPlayerHand>(
     code && playerId ? api.CahGame.urlForGetPlayerHand(code, playerId) : null,
     () => api.CahGame.getPlayerHand(code!, playerId!),
+    { refreshInterval: 3000 },
+  );
+};
+
+export const useCahScoreboard = (code: string | undefined) => {
+  const api = useApiContext();
+
+  return useSWRService<ICahScoreboard>(
+    code ? api.CahGame.urlForGetScoreboard(code) : null,
+    () => api.CahGame.getScoreboard(code!),
     { refreshInterval: 3000 },
   );
 };
