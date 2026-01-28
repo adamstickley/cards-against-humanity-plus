@@ -178,5 +178,23 @@
 - Score increment logic in CahGameRoundService.selectWinner() - winner.score += 1
 - Win condition checked in selectWinner() - winner.score >= session.score_to_win
 - Players initialized with score=0 in CahGameSessionService.createSession() and joinSession()
-- Fixed pre-existing test bug in cah-game.gateway.spec.ts (missing GameStateSyncService mock)
-- All 84 tests pass
+- Enhanced with dedicated scoreboard and score history endpoints:
+- New DTOs:
+  - ScoreboardDto: Full scoreboard with player rankings, leader, tie detection
+  - ScoreboardPlayerDto: Individual player score data with rank
+  - PlayerScoreHistoryDto: Player's complete score breakdown
+  - RoundWinDto: Details of each round a player won
+- New API endpoints:
+  - GET /cards/cah/session/:code/scoreboard - Returns ranked scoreboard with:
+    - All players sorted by score descending
+    - Rounds won count per player
+    - Leader identification
+    - Tie detection when multiple players share top score
+    - Game status and score-to-win threshold
+  - GET /cards/cah/session/:code/player/:playerId/score-history - Returns:
+    - Player's total score
+    - List of all rounds won with prompt text and winning cards
+    - Round numbers and timestamps
+- Added CahGameRoundEntity to CahGameSessionModule for round data access
+- Added 5 unit tests for scoreboard and score history methods
+- All 90 tests pass

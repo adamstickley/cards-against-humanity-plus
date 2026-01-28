@@ -8,6 +8,7 @@ import {
   CahSessionPlayerEntity,
   CahSessionCardPackEntity,
   CahCardSetEntity,
+  CahGameRoundEntity,
 } from '../../../../entities';
 
 describe('CahGameSessionService', () => {
@@ -15,6 +16,7 @@ describe('CahGameSessionService', () => {
   let sessionRepo: jest.Mocked<Repository<CahGameSessionEntity>>;
   let playerRepo: jest.Mocked<Repository<CahSessionPlayerEntity>>;
   let cardSetRepo: jest.Mocked<Repository<CahCardSetEntity>>;
+  let roundRepo: jest.Mocked<Repository<CahGameRoundEntity>>;
 
   const mockQueryRunner = {
     connect: jest.fn(),
@@ -68,6 +70,20 @@ describe('CahGameSessionService', () => {
           },
         },
         {
+          provide: getRepositoryToken(CahGameRoundEntity),
+          useValue: {
+            createQueryBuilder: jest.fn().mockReturnValue({
+              select: jest.fn().mockReturnThis(),
+              addSelect: jest.fn().mockReturnThis(),
+              where: jest.fn().mockReturnThis(),
+              andWhere: jest.fn().mockReturnThis(),
+              groupBy: jest.fn().mockReturnThis(),
+              getRawMany: jest.fn(),
+            }),
+            find: jest.fn(),
+          },
+        },
+        {
           provide: DataSource,
           useValue: mockDataSource,
         },
@@ -78,6 +94,7 @@ describe('CahGameSessionService', () => {
     sessionRepo = module.get(getRepositoryToken(CahGameSessionEntity));
     playerRepo = module.get(getRepositoryToken(CahSessionPlayerEntity));
     cardSetRepo = module.get(getRepositoryToken(CahCardSetEntity));
+    roundRepo = module.get(getRepositoryToken(CahGameRoundEntity));
   });
 
   afterEach(() => {
@@ -264,6 +281,215 @@ describe('CahGameSessionService', () => {
 
       expect(result.code).toBe('ABC123');
       expect(result.players).toHaveLength(1);
+    });
+  });
+
+  describe('getScoreboard', () => {
+    it('should throw NotFoundException if session not found', async () => {
+      (sessionRepo.findOne as jest.Mock).mockResolvedValue(null);
+
+      await expect(service.getScoreboard('INVALID')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should return scoreboard with players sorted by score', async () => {
+      const mockSession = {
+        session_id: 1,
+        code: 'ABC123',
+        status: 'in_progress',
+        score_to_win: 8,
+        current_round: 5,
+        players: [
+          {
+            session_player_id: 1,
+            nickname: 'Player1',
+            score: 2,
+            is_host: true,
+            is_connected: true,
+          },
+          {
+            session_player_id: 2,
+            nickname: 'Player2',
+            score: 4,
+            is_host: false,
+            is_connected: true,
+          },
+          {
+            session_player_id: 3,
+            nickname: 'Player3',
+            score: 1,
+            is_host: false,
+            is_connected: true,
+          },
+        ],
+      };
+
+      (sessionRepo.findOne as jest.Mock).mockResolvedValue(mockSession);
+
+      const mockQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([
+          { winnerId: 2, roundsWon: '4' },
+          { winnerId: 1, roundsWon: '2' },
+          { winnerId: 3, roundsWon: '1' },
+        ]),
+      };
+      (roundRepo.createQueryBuilder as jest.Mock).mockReturnValue(
+        mockQueryBuilder,
+      );
+
+      const result = await service.getScoreboard('ABC123');
+
+      expect(result.sessionCode).toBe('ABC123');
+      expect(result.scoreToWin).toBe(8);
+      expect(result.players).toHaveLength(3);
+      expect(result.players[0].nickname).toBe('Player2');
+      expect(result.players[0].score).toBe(4);
+      expect(result.players[0].rank).toBe(1);
+      expect(result.leader?.playerId).toBe(2);
+      expect(result.isTied).toBe(false);
+    });
+
+    it('should detect tied scores', async () => {
+      const mockSession = {
+        session_id: 1,
+        code: 'ABC123',
+        status: 'in_progress',
+        score_to_win: 8,
+        current_round: 4,
+        players: [
+          {
+            session_player_id: 1,
+            nickname: 'Player1',
+            score: 3,
+            is_host: true,
+            is_connected: true,
+          },
+          {
+            session_player_id: 2,
+            nickname: 'Player2',
+            score: 3,
+            is_host: false,
+            is_connected: true,
+          },
+        ],
+      };
+
+      (sessionRepo.findOne as jest.Mock).mockResolvedValue(mockSession);
+
+      const mockQueryBuilder = {
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue([
+          { winnerId: 1, roundsWon: '3' },
+          { winnerId: 2, roundsWon: '3' },
+        ]),
+      };
+      (roundRepo.createQueryBuilder as jest.Mock).mockReturnValue(
+        mockQueryBuilder,
+      );
+
+      const result = await service.getScoreboard('ABC123');
+
+      expect(result.isTied).toBe(true);
+    });
+  });
+
+  describe('getPlayerScoreHistory', () => {
+    it('should throw NotFoundException if session not found', async () => {
+      (sessionRepo.findOne as jest.Mock).mockResolvedValue(null);
+
+      await expect(service.getPlayerScoreHistory('INVALID', 1)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw NotFoundException if player not in session', async () => {
+      const mockSession = {
+        session_id: 1,
+        code: 'ABC123',
+        players: [{ session_player_id: 1, nickname: 'Player1' }],
+      };
+
+      (sessionRepo.findOne as jest.Mock).mockResolvedValue(mockSession);
+
+      await expect(
+        service.getPlayerScoreHistory('ABC123', 999),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should return player score history with rounds won', async () => {
+      const mockSession = {
+        session_id: 1,
+        code: 'ABC123',
+        players: [
+          {
+            session_player_id: 1,
+            nickname: 'Player1',
+            score: 2,
+          },
+        ],
+      };
+
+      const mockWonRounds = [
+        {
+          round_id: 1,
+          round_number: 2,
+          prompt_card: { card_text: 'What is _?' },
+          winner_player_id: 1,
+          created_at: new Date('2024-01-01'),
+          submissions: [
+            {
+              session_player_id: 1,
+              cards: [
+                {
+                  card_order: 0,
+                  card: { card_id: 10, card_text: 'Awesome answer' },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          round_id: 3,
+          round_number: 5,
+          prompt_card: { card_text: 'Why did _?' },
+          winner_player_id: 1,
+          created_at: new Date('2024-01-02'),
+          submissions: [
+            {
+              session_player_id: 1,
+              cards: [
+                {
+                  card_order: 0,
+                  card: { card_id: 20, card_text: 'Great response' },
+                },
+              ],
+            },
+          ],
+        },
+      ];
+
+      (sessionRepo.findOne as jest.Mock).mockResolvedValue(mockSession);
+      (roundRepo.find as jest.Mock).mockResolvedValue(mockWonRounds);
+
+      const result = await service.getPlayerScoreHistory('ABC123', 1);
+
+      expect(result.playerId).toBe(1);
+      expect(result.nickname).toBe('Player1');
+      expect(result.totalScore).toBe(2);
+      expect(result.roundsWon).toHaveLength(2);
+      expect(result.roundsWon[0].roundNumber).toBe(2);
+      expect(result.roundsWon[0].promptText).toBe('What is _?');
+      expect(result.roundsWon[0].winningCards[0].text).toBe('Awesome answer');
     });
   });
 });

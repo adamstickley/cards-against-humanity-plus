@@ -7,6 +7,7 @@ import {
   CahCardSetEntity,
   CahCardEntity,
   CahPlayerHandEntity,
+  CahGameRoundEntity,
 } from '../../../../entities';
 import { CahGameSessionController } from './cah-game-session.controller';
 import { CahGameSessionService } from './cah-game-session.service';
@@ -21,6 +22,7 @@ import { CahCardDealerService } from './cah-card-dealer.service';
       CahCardSetEntity,
       CahCardEntity,
       CahPlayerHandEntity,
+      CahGameRoundEntity,
     ]),
   ],
   controllers: [CahGameSessionController],
