@@ -16,8 +16,10 @@ import {
   PlayerInfo,
   RoundInfo,
   SubmissionInfo,
+  GameStateInfo,
 } from './game-events.types';
 import { PlayerPresenceService } from './player-presence.service';
+import { GameStateSyncService } from './game-state-sync.service';
 
 interface SocketData {
   playerId?: number;
@@ -42,7 +44,10 @@ export class CahGameGateway
   private readonly logger = new Logger(CahGameGateway.name);
   private cleanupInterval: ReturnType<typeof setInterval> | null = null;
 
-  constructor(private readonly presenceService: PlayerPresenceService) {}
+  constructor(
+    private readonly presenceService: PlayerPresenceService,
+    private readonly gameStateSyncService: GameStateSyncService,
+  ) {}
 
   afterInit() {
     this.logger.log('WebSocket Gateway initialized');
@@ -97,6 +102,8 @@ export class CahGameGateway
 
     if (isReconnection) {
       this.server.to(roomName).emit('playerReconnected', { playerId });
+      // Send full game state to reconnecting player
+      await this.emitGameStateToClient(client.id, sessionCode, playerId);
     }
 
     const connectedPlayers =
@@ -149,6 +156,27 @@ export class CahGameGateway
       data.sessionCode,
     );
     return { connectedPlayerIds: connectedPlayers };
+  }
+
+  @SubscribeMessage('requestGameState')
+  async handleRequestGameState(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { sessionCode: string; playerId: number },
+  ) {
+    try {
+      const gameState = await this.gameStateSyncService.getFullGameState(
+        data.sessionCode,
+        data.playerId,
+      );
+      client.emit('gameState', gameState as GameStateInfo);
+      return { success: true };
+    } catch (error) {
+      this.logger.error(
+        `Failed to get game state for session ${data.sessionCode}: ${error}`,
+      );
+      client.emit('error', { message: 'Failed to retrieve game state' });
+      return { success: false, error: 'Failed to retrieve game state' };
+    }
   }
 
   emitPresenceUpdate(sessionCode: string, connectedPlayerIds: number[]) {
@@ -265,6 +293,44 @@ export class CahGameGateway
     const roomName = this.getRoomName(sessionCode);
     this.server.to(roomName).emit('error', { message });
     this.logger.error(`Emitted error to room ${roomName}: ${message}`);
+  }
+
+  async emitGameState(sessionCode: string, playerId?: number): Promise<void> {
+    try {
+      const gameState = await this.gameStateSyncService.getFullGameState(
+        sessionCode,
+        playerId,
+      );
+      const roomName = this.getRoomName(sessionCode);
+      this.server.to(roomName).emit('gameState', gameState as GameStateInfo);
+      this.logger.log(`Emitted gameState to room ${roomName}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to emit game state for session ${sessionCode}: ${error}`,
+      );
+    }
+  }
+
+  async emitGameStateToClient(
+    clientId: string,
+    sessionCode: string,
+    playerId: number,
+  ): Promise<void> {
+    try {
+      const gameState = await this.gameStateSyncService.getFullGameState(
+        sessionCode,
+        playerId,
+      );
+      const socket = this.server.sockets.sockets.get(clientId);
+      if (socket) {
+        socket.emit('gameState', gameState as GameStateInfo);
+        this.logger.log(`Emitted gameState to client ${clientId}`);
+      }
+    } catch (error) {
+      this.logger.error(
+        `Failed to emit game state to client ${clientId}: ${error}`,
+      );
+    }
   }
 
   private getRoomName(sessionCode: string): string {
