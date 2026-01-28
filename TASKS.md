@@ -13,7 +13,7 @@ Subtasks:
 Subtasks:
 - [Task] Add WebSocket support for real-time updates 🔌 Matilta Claude - COMPLETE
 - [Task] Implement player presence/connection tracking 👁️ Matilta Claude - COMPLETE
-- [Task] Sync game state across all players
+- [Task] Sync game state across all players 🔄 Matilta Claude - COMPLETE
 
 [Main Feature] Scoring system
 
