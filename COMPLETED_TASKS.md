@@ -198,3 +198,28 @@
 - Added CahGameRoundEntity to CahGameSessionModule for round data access
 - Added 5 unit tests for scoreboard and score history methods
 - All 90 tests pass
+
+[Task] Build game lobby UI 🏠 Billy Claude - COMPLETE
+- Migrated from React Router to Next.js App Router with file-based routing
+- Renamed src/pages to src/features to avoid Next.js pages directory conflict
+- Created Next.js routes:
+  - / - Homepage
+  - /cah/setup - Game setup and join page
+  - /cah/lobby/[code] - Game lobby with player list
+  - /cah/play/[code] - Game play view
+- Created CahSessionApi client for session management:
+  - createSession(data): Create a new game session
+  - joinSession(code, nickname): Join existing session by code
+  - getSession(code): Get full session details
+  - startGame(code, playerId): Start the game
+- Created useCahSession hook with SWR polling (2-second refresh)
+- Added ApiProvider component for React context
+- Created lobby UI components:
+  - PlayersList: Shows players with host badge, connection status indicators
+  - SessionInfo: Displays copyable game code, settings summary, card packs
+  - GameControls: Start game button for host, waiting message for others
+- Created setup page with join game and create game forms
+- Replaced all FontAwesome icons with Radix UI icons
+- Auto-redirect to play view when game starts
+- Session storage for player ID persistence
+- Build passes successfully with TypeScript
