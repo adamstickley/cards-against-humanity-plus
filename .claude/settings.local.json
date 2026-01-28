@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(source ~/.nvm/nvm.sh)",
+      "Bash(nvm list:*)",
+      "WebSearch",
+      "Bash(npm view:*)",
+      "Bash(CI=true pnpm install:*)",
+      "Bash(pnpm exec tsc:*)",
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(pnpm run lint:*)",
+      "Bash(pnpm run test:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

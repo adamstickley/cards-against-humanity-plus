@@ -2,13 +2,15 @@
 
 Create a "cards against humanity" style game where users can create/join rooms and play with friends.
 
-- Check the TASKS.md file for a list of current tasks and priorities.
+- If you notice a task with your own name on it that is marked as in progress, continue working on it.
+- Check the TASKS.md file for a list of current tasks and priorities. Use your best judgment for task selection, not just the first available task.
 - When starting a new task, add your name next to it with a relevant emoji.
 - If you fail to complete a task, write an explanatory markdown file in the `docs/` folder, link to it from the task, and free up the task for others to pick up.
 - Do not pick up a task that someone else is already working on.
 - Update this file with any relevant information for new developers.
 - Verify completed tasks via verbose tests and lack of lint/compile errors.
-- Any completed tasks should be moved to the COMPLETED_TASKS.md file.
+- Any completed tasks should be moved to the COMPLETED_TASKS.md file. A commit should be made with the message "Completed task: [task name]".
+- You should change your git name via `git config user.name "Your Name"` so that completed tasks can be tracked to the correct developer. Unset the name when done via `git config --unset user.name`.
 - Create new subtasks in the TASKS.md file to break down larger tasks as needed. Keep tasks as isolated as reasonably possible.
 
 # Project Structure
@@ -16,6 +18,16 @@ Create a "cards against humanity" style game where users can create/join rooms a
 The server files are located in the `cards-server/` folder.
 
 The client files are located in the `cards-client/` folder.
+
+Install dependencies for each project separately using `pnpm install` in each folder.
+
+Update each project's README.md with any relevant information for new developers. Don't be too verbose; just include what is necessary.
+
+Strictly use pnpm to manage dependencies and scripts.
+
+Use node v22.
+
+`nvm` command can be used to switch node versions if not on v22.
 
 # Maintenance
 
