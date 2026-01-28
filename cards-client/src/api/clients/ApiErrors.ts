@@ -1,7 +1,11 @@
 import { AxiosError } from 'axios';
 
+interface ErrorResponseData {
+  errors?: Array<{ status: number; message: string }>;
+}
+
 export const getExceptionMessages = (error: Error): string[] => {
-  const errorData = (error as AxiosError)?.response?.data;
+  const errorData = (error as AxiosError<ErrorResponseData>)?.response?.data;
   const errors = errorData?.errors;
   if (errors) {
     return errors.map((e: any) => {

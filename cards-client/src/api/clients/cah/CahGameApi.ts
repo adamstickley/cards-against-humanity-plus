@@ -2,7 +2,8 @@ import { IApiClient } from '../../types';
 import {
   ICahRound,
   ICahPlayerHand,
-} from '../../../pages/CardsAgainstHumanity/types';
+  ICahScoreboard,
+} from '../../../features/CardsAgainstHumanity/types';
 
 interface StartGameResponse {
   sessionId: number;
