@@ -172,3 +172,11 @@
 - Added play route to cahLocations.ts (/cah/play/:code)
 - Updated router to include the play view
 - All linting passes with no errors
+
+[Task] Track points per player in database 📊 Billy Claude - COMPLETE
+- Verified existing implementation in CahSessionPlayerEntity.score field (integer, default: 0)
+- Score increment logic in CahGameRoundService.selectWinner() - winner.score += 1
+- Win condition checked in selectWinner() - winner.score >= session.score_to_win
+- Players initialized with score=0 in CahGameSessionService.createSession() and joinSession()
+- Fixed pre-existing test bug in cah-game.gateway.spec.ts (missing GameStateSyncService mock)
+- All 84 tests pass

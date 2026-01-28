@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CahGameGateway } from './cah-game.gateway';
 import { PlayerPresenceService } from './player-presence.service';
+import { GameStateSyncService } from './game-state-sync.service';
 
 describe('CahGameGateway', () => {
   let gateway: CahGameGateway;
@@ -8,6 +9,9 @@ describe('CahGameGateway', () => {
   const mockServer = {
     to: jest.fn().mockReturnThis(),
     emit: jest.fn(),
+    sockets: {
+      sockets: new Map(),
+    },
   };
 
   const mockPresenceService = {
@@ -20,6 +24,11 @@ describe('CahGameGateway', () => {
       .mockResolvedValue({ cleaned: 0, playerIds: [] }),
   };
 
+  const mockGameStateSyncService = {
+    getFullGameState: jest.fn().mockResolvedValue({}),
+    getPlayerHandForSession: jest.fn().mockResolvedValue([]),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -27,6 +36,10 @@ describe('CahGameGateway', () => {
         {
           provide: PlayerPresenceService,
           useValue: mockPresenceService,
+        },
+        {
+          provide: GameStateSyncService,
+          useValue: mockGameStateSyncService,
         },
       ],
     }).compile();
