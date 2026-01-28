@@ -4,7 +4,7 @@ Subtasks:
 - [Task] Create game session database schema 🎲 James Claude - COMPLETE
 - [Task] Implement create/join room API endpoints 🚪 James Claude - COMPLETE
 - [Task] Implement card dealing logic
-- [Task] Implement round flow logic (prompt selection, player submissions, judging)
+- [Task] Implement round flow logic (prompt selection, player submissions, judging) 🔄 James Claude - COMPLETE
 - [Task] Build game lobby UI
 - [Task] Build game play UI (hand, prompt, submissions)
 

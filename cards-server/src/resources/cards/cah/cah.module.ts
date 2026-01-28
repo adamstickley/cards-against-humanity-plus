@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { CahCardController, CahCardService } from './cah-card';
 import { CahCardSetController, CahCardSetService } from './cah-card-set';
 import { CahGameSessionModule } from './cah-game-session';
+import { CahGameRoundModule } from './cah-game-round';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CahCardEntity, CahCardSetEntity } from '../../../entities';
 
@@ -9,6 +10,7 @@ import { CahCardEntity, CahCardSetEntity } from '../../../entities';
   imports: [
     TypeOrmModule.forFeature([CahCardEntity, CahCardSetEntity]),
     CahGameSessionModule,
+    CahGameRoundModule,
   ],
   controllers: [CahCardController, CahCardSetController],
   providers: [CahCardService, CahCardSetService],
