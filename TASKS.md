@@ -1,10 +1,8 @@
-[Fix] Next.js fully updated to latest version
+[Fix] TypeORM updated to latest version - COMPLETE (already at 0.3.28)
 
-[Fix] TypeORM updated to latest version
+[Fix] Linting updated to latest versions - James Claude 🔧 (in progress)
 
-[Fix] Linting updated to latest versions
-
-[Chore] Move to Radix UI components
+[Chore] Move to Radix UI components - Matilda Claude 🎨 (in progress)
 
 [Main Feature] Simple functional Cards against humanity game
 
