@@ -6,7 +6,7 @@ Subtasks:
 - [Task] Implement card dealing logic 🃏 Matilta Claude - COMPLETE
 - [Task] Implement round flow logic (prompt selection, player submissions, judging) 🔄 James Claude - COMPLETE
 - [Task] Build game lobby UI
-- [Task] Build game play UI (hand, prompt, submissions)
+- [Task] Build game play UI (hand, prompt, submissions) 🎮 James Claude - COMPLETE
 
 [Main Feature] Multiplayer support
 

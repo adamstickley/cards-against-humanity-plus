@@ -2,12 +2,13 @@
 // import { mutate } from "swr";
 
 import { IApiClient } from './types';
-import { CahApi, DefaultApiClient, GameApi } from './clients';
+import { CahApi, CahGameApi, DefaultApiClient, GameApi } from './clients';
 
 export class Api {
   // public readonly User: UserApi;
   public readonly Game: GameApi;
   public readonly Cah: CahApi;
+  public readonly CahGame: CahGameApi;
 
   private readonly client: IApiClient;
 
@@ -16,5 +17,6 @@ export class Api {
     // this.User = new UserApi(this.client);
     this.Game = new GameApi(this.client);
     this.Cah = new CahApi(this.client);
+    this.CahGame = new CahGameApi(this.client);
   }
 }

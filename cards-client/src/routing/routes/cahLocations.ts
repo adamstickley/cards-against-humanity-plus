@@ -17,7 +17,10 @@ class CahRouteLocations {
   public Cah = {
     root: new CahLocation('', 'Cards Against Humanity'),
     setup: new CahLocation('setup', 'Cards Against Humanity'),
-    play: new CahLocation('play', 'Cards Against Humanity'),
+    play: new CahLocation<{ code: string }>(
+      'play/:code',
+      'Cards Against Humanity',
+    ),
   };
 }
 

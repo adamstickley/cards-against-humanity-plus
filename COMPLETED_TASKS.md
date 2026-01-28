@@ -115,3 +115,36 @@
   - CahGameRoundController: Emits all game flow events
 - Added 13 unit tests for gateway
 - All 59 tests pass
+
+[Task] Build game play UI (hand, prompt, submissions) 🎮 James Claude - COMPLETE
+- Created TypeScript interfaces for game play (ICahGamePlay.ts):
+  - ICahCard, ICahPromptCard, ICahJudge, ICahSubmission
+  - ICahRound, ICahPlayerHand, ICahPlayer, ICahGameState
+  - CahRoundStatus type
+- Created CahGameApi client for game round API endpoints:
+  - getCurrentRound(code): Get current round with prompt, judge, and submissions
+  - getPlayerHand(code, playerId): Get player's hand of cards
+  - submitCards(code, roundId, playerId, cardIds): Submit response cards
+  - selectWinner(code, roundId, judgePlayerId, winningSubmissionId): Judge selects winner
+  - startGame(code, playerId): Start the game
+- Created SWR hooks for data fetching with auto-refresh:
+  - useCahCurrentRound: Fetches current round data every 3 seconds
+  - useCahPlayerHand: Fetches player's hand every 3 seconds
+- Created game play UI components using Radix UI Themes:
+  - PromptCard: Displays black prompt card with pick count
+  - ResponseCard: Reusable white card with selection indicator
+  - PlayerHand: Grid of player's cards with selection and submit functionality
+  - SubmissionsList: Shows submissions (hidden during play, revealed during judging)
+  - Scoreboard: Displays player scores with current player/judge indicators
+  - RoundStatus: Shows round number, status badge, and progress
+  - RoundWinner: Displays winning submission with prompt context
+  - GameOverView: Final scores and winner display
+- Created CardsAgainstHumanityPlayView main component:
+  - Three-column layout (sidebar + main content)
+  - Card selection with multi-pick support
+  - Submission flow with loading states
+  - Judge selection flow with confirmation
+  - Different views based on round status
+- Added play route to cahLocations.ts (/cah/play/:code)
+- Updated router to include the play view
+- All linting passes with no errors
