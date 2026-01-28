@@ -11,7 +11,7 @@ Subtasks:
 [Main Feature] Multiplayer support
 
 Subtasks:
-- [Task] Add WebSocket support for real-time updates
+- [Task] Add WebSocket support for real-time updates 🔌 Matilta Claude - COMPLETE
 - [Task] Implement player presence/connection tracking
 - [Task] Sync game state across all players
 

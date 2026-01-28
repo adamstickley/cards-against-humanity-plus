@@ -89,3 +89,29 @@
 - Added DTOs with validation (StartGameDto, SubmitCardsDto, SelectWinnerDto)
 - Added 19 unit tests for service
 - All 36 tests pass (entity + session + round tests)
+
+[Task] Add WebSocket support for real-time updates 🔌 Matilta Claude - COMPLETE
+- Created CahGameGatewayModule with CahGameGateway for real-time WebSocket communication
+- Installed @nestjs/websockets, @nestjs/platform-socket.io, and socket.io dependencies
+- WebSocket events emitted:
+  - playerJoined: When a new player joins a session
+  - playerLeft: When a player leaves a session
+  - playerDisconnected: When a player's connection drops
+  - playerReconnected: When a player reconnects
+  - gameStarted: When the host starts the game (includes round and player info)
+  - roundStarted: When a new round begins
+  - cardSubmitted: When a player submits their cards (shows progress)
+  - judgingStarted: When all players have submitted (reveals cards)
+  - winnerSelected: When the judge picks a winner
+  - nextRound: When a new round starts after winner selection
+  - gameEnded: When a player reaches the score to win
+  - error: For broadcasting errors to session
+- Client events handled:
+  - joinSession: Client joins a session room
+  - leaveSession: Client leaves a session room
+- Socket.io rooms used to broadcast events only to players in the same session
+- Gateway integrated with:
+  - CahGameSessionController: Emits playerJoined on join
+  - CahGameRoundController: Emits all game flow events
+- Added 13 unit tests for gateway
+- All 59 tests pass

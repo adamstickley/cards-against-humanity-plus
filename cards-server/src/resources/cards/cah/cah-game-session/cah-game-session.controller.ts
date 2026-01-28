@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { CahGameSessionService } from './cah-game-session.service';
 import { CahCardDealerService } from './cah-card-dealer.service';
+import { CahGameGateway } from '../cah-game-gateway';
 import { CreateSessionDto, JoinSessionDto } from './dto';
 
 @Controller('session')
@@ -15,6 +16,7 @@ export class CahGameSessionController {
   constructor(
     private readonly sessionService: CahGameSessionService,
     private readonly cardDealerService: CahCardDealerService,
+    private readonly gameGateway: CahGameGateway,
   ) {}
 
   @Post()
@@ -39,6 +41,20 @@ export class CahGameSessionController {
       code,
       dto,
     );
+
+    const connectedPlayers = session.players.filter((p) => p.is_connected);
+    this.gameGateway.emitPlayerJoined(
+      session.code,
+      {
+        playerId: player.session_player_id,
+        nickname: player.nickname,
+        score: player.score,
+        isHost: player.is_host,
+        isConnected: player.is_connected,
+      },
+      connectedPlayers.length + 1,
+    );
+
     return {
       code: session.code,
       sessionId: session.session_id,
