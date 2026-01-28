@@ -1,50 +1,59 @@
-import * as React from "react";
-import { CustomPackListSort } from "./components/CustomPackListSort";
-import { Card, Container, Space, Title, useMantineTheme } from "@mantine/core";
-import { ICahCardSet, ICahForm } from "../../../../../types";
+import * as React from 'react';
+import { Box, Card, Container, Heading } from '@radix-ui/themes';
+import { ICahCardSet, ICahForm } from '../../../../../types';
+import { CustomPackListSort } from './components/CustomPackListSort';
 
 export const CustomPackList: React.FC<{
   form: ICahForm;
   cardSets: ICahCardSet[];
 }> = ({ form, cardSets }) => {
-  const themes = useMantineTheme();
-  const onClickFn = (selectedId) => {
-    return (event) => {
-      const values = [...form.values["packSettings.selectedPacks"]];
-      if (event.target.checked) {
+  const formValues = form.watch();
+
+  const onClickFn = (selectedId: number, isCurrentlyChecked: boolean) => {
+    return () => {
+      const values = [...formValues['packSettings.selectedPacks']];
+      if (!isCurrentlyChecked) {
         values.push(selectedId);
       } else {
         values.splice(values.indexOf(selectedId), 1);
       }
-      form.setFieldValue("packSettings.selectedPacks", values);
+      form.setValue('packSettings.selectedPacks', values);
     };
   };
 
-  const cardSetSort = (a, b) => {
-    if (form.values["packSettings.sortBy"] === "alphabetical") {
-      if (a.title < b.title) return -1;
-      if (a.title > b.title) return 1;
-    } else if (form.values["packSettings.sortBy"] === "popularity") {
-      if (a.popularity > b.popularity) return -1;
-      if (a.popularity < b.popularity) return 1;
+  const cardSetSort = (a: ICahCardSet, b: ICahCardSet) => {
+    if (formValues['packSettings.sortBy'] === 'alphabetical') {
+      if (a.title < b.title) {
+        return -1;
+      }
+      if (a.title > b.title) {
+        return 1;
+      }
+    } else if (formValues['packSettings.sortBy'] === 'popularity') {
+      if (a.popularity > b.popularity) {
+        return -1;
+      }
+      if (a.popularity < b.popularity) {
+        return 1;
+      }
     }
     return 0;
   };
 
-  const cardSetFilter = (card) => {
+  const cardSetFilter = (card: ICahCardSet) => {
     return card.title
       .toLowerCase()
-      .includes(form.values["packSettings.filter"]?.toLowerCase());
+      .includes(formValues['packSettings.filter']?.toLowerCase() ?? '');
   };
 
-  const onlyExpansions = (card) => {
+  const onlyExpansions = (card: ICahCardSet) => {
     return !card.is_base_set;
   };
 
   return (
     <>
       <CustomPackListSort form={form} />
-      <Space h="lg" />
+      <Box mb="4" />
       {cardSets &&
         cardSets
           .filter(onlyExpansions)
@@ -53,35 +62,34 @@ export const CustomPackList: React.FC<{
           .map((cardSet) => {
             const selectedId = cardSet.card_set_id;
             const isChecked =
-              Array.isArray(form.values["packSettings.selectedPacks"]) &&
-              form.values["packSettings.selectedPacks"].includes(selectedId);
+              Array.isArray(formValues['packSettings.selectedPacks']) &&
+              formValues['packSettings.selectedPacks'].includes(selectedId);
             return (
               <Card
-                sx={{
-                  cursor: "pointer",
+                style={{
+                  cursor: 'pointer',
                   border: `1px solid ${
                     isChecked
                       ? cardSet.recommended
-                        ? themes.colors.yellow[2]
-                        : themes.colors.gray[6]
-                      : "transparent"
+                        ? 'var(--yellow-9)'
+                        : 'var(--gray-8)'
+                      : 'transparent'
                   }`,
                 }}
                 key={cardSet.card_set_id}
-                mb="md"
+                mb="3"
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  onClickFn(selectedId)({ target: { checked: !isChecked } }); // flip the checkbox
+                  onClickFn(selectedId, isChecked)();
                 }}
               >
-                <Container fluid={true}>
-                  <Title order={4}>{cardSet.title}</Title>
+                <Container>
+                  <Heading size="4">{cardSet.title}</Heading>
                 </Container>
               </Card>
             );
           })}
-      {/*</CheckboxGroup>*/}
     </>
   );
 };

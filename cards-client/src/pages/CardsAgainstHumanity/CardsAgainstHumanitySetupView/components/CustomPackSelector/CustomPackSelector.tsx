@@ -1,84 +1,137 @@
-import * as React from "react";
-import { ICahCardSet, ICahForm } from "../../../types";
-import { Accordion, Grid, Text, Title } from "@mantine/core";
-import { CustomPackList } from "./form-components/CustomPackList/CustomPackList";
-import { useMediaQuery } from "@mantine/hooks";
-import { BasePackList } from "./form-components/BasePackList/BasePackList";
+import * as React from 'react';
+import { useEffect, useState } from 'react';
+import { Box, Grid, Heading, Text } from '@radix-ui/themes';
+import * as Accordion from '@radix-ui/react-accordion';
+import { ICahCardSet, ICahForm } from '../../../types';
+import { CustomPackList } from './form-components/CustomPackList/CustomPackList';
+import { BasePackList } from './form-components/BasePackList/BasePackList';
+
+const useMediaQuery = (query: string): boolean => {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) {
+      setMatches(media.matches);
+    }
+    const listener = () => setMatches(media.matches);
+    media.addEventListener('change', listener);
+    return () => media.removeEventListener('change', listener);
+  }, [matches, query]);
+
+  return matches;
+};
 
 export const CustomPackSelector: React.FC<{
   form: ICahForm;
   cardSets: ICahCardSet[];
 }> = ({ form, cardSets }) => {
-  const mobile = useMediaQuery("(max-width: 800px)");
-  const selectedPacks = form.values["packSettings.selectedPacks"];
+  const mobile = useMediaQuery('(max-width: 800px)');
+  const selectedPacks = form.watch('packSettings.selectedPacks');
 
   return (
     <>
-      <Title order={2} mb="md">
+      <Heading size="6" mb="3">
         Custom Pack Wizard
-      </Title>
-      <Title order={3} mb="md">
+      </Heading>
+      <Heading size="5" mb="3">
         Base Pack
-        {/* TODO: parse the CAH spreadsheet to create separate base sets for AU/CA/UK/US*/}
-        {/*  currently, ALL are in the "Base set" when they should be separated using the Version columns */}
-      </Title>
+      </Heading>
       <BasePackList
         form={form}
         basePacks={cardSets.filter((cardSet) => cardSet.is_base_set)}
       />
 
-      <Grid>
+      <Grid columns={{ initial: '12' }} gap="4">
         {mobile && (
-          <Grid.Col xl={6} lg={6} md={4} sm={4} xs={12}>
+          <Box
+            gridColumn={{
+              initial: 'span 12',
+              sm: 'span 4',
+              md: 'span 4',
+              lg: 'span 6',
+            }}
+          >
             {!!selectedPacks.length && (
-              <Accordion>
-                <Accordion.Item
-                  label={
-                    selectedPacks.length
+              <Accordion.Root type="single" collapsible>
+                <Accordion.Item value="selections">
+                  <Accordion.Trigger
+                    style={{
+                      cursor: 'pointer',
+                      padding: '8px',
+                      background: 'var(--gray-3)',
+                      width: '100%',
+                    }}
+                  >
+                    {selectedPacks.length
                       ? `Selections (${selectedPacks.length})`
-                      : ""
-                  }
-                >
-                  {cardSets
-                    .filter((cardSet) =>
-                      form.values["packSettings.selectedPacks"].includes(
-                        cardSet.card_set_id
+                      : ''}
+                  </Accordion.Trigger>
+                  <Accordion.Content style={{ padding: '8px' }}>
+                    {cardSets
+                      .filter((cardSet) =>
+                        selectedPacks.includes(cardSet.card_set_id),
                       )
-                    )
-                    .sort((a, b) => {
-                      if (a.title < b.title) return -1;
-                      if (a.title > b.title) return 1;
-                      return 0;
-                    })
-                    .map((cardSet) => (
-                      <Text key={cardSet.card_set_id}>{cardSet.title}</Text>
-                    ))}
+                      .sort((a, b) => {
+                        if (a.title < b.title) {
+                          return -1;
+                        }
+                        if (a.title > b.title) {
+                          return 1;
+                        }
+                        return 0;
+                      })
+                      .map((cardSet) => (
+                        <Text as="p" key={cardSet.card_set_id}>
+                          {cardSet.title}
+                        </Text>
+                      ))}
+                  </Accordion.Content>
                 </Accordion.Item>
-              </Accordion>
+              </Accordion.Root>
             )}
-          </Grid.Col>
+          </Box>
         )}
-        <Grid.Col xl={6} lg={6} md={8} sm={8} xs={12}>
+        <Box
+          gridColumn={{
+            initial: 'span 12',
+            sm: 'span 8',
+            md: 'span 8',
+            lg: 'span 6',
+          }}
+        >
           <CustomPackList form={form} cardSets={cardSets} />
-        </Grid.Col>
+        </Box>
         {!mobile && (
-          <Grid.Col xl={6} lg={6} md={4} sm={4} xs={12}>
-            {/* TODO: change to accordion for mobile so selections don't push the screen down */}
-            <Text>
+          <Box
+            gridColumn={{
+              initial: 'span 12',
+              sm: 'span 4',
+              md: 'span 4',
+              lg: 'span 6',
+            }}
+          >
+            <Text as="p">
               Selections
-              {selectedPacks.length ? ` (${selectedPacks.length})` : ""}:
+              {selectedPacks.length ? ` (${selectedPacks.length})` : ''}:
             </Text>
             {cardSets
               .filter((cardSet) => selectedPacks.includes(cardSet.card_set_id))
               .sort((a, b) => {
-                if (a.title < b.title) return -1;
-                if (a.title > b.title) return 1;
+                if (a.title < b.title) {
+                  return -1;
+                }
+                if (a.title > b.title) {
+                  return 1;
+                }
                 return 0;
               })
               .map((cardSet) => (
-                <Text key={cardSet.card_set_id}>{cardSet.title}</Text>
+                <Text as="p" key={cardSet.card_set_id}>
+                  {cardSet.title}
+                </Text>
               ))}
-          </Grid.Col>
+          </Box>
         )}
       </Grid>
     </>

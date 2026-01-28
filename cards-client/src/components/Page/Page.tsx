@@ -1,16 +1,20 @@
-import * as React from "react";
-import { Space, Title, TitleProps } from "@mantine/core";
+import * as React from 'react';
+import { Box, Heading } from '@radix-ui/themes';
 
 export interface IPageProps {
   title?: string;
-  titleProps?: TitleProps;
+  children?: React.ReactNode;
 }
 
-export const Page: React.FC<IPageProps> = ({ title, titleProps, children }) => {
+export const Page: React.FC<IPageProps> = ({ title, children }) => {
   return (
     <>
-      {title && <Title {...titleProps}>{title}</Title>}
-      <Space h="sm" />
+      {title && (
+        <Heading size="8" mb="3">
+          {title}
+        </Heading>
+      )}
+      <Box mb="3" />
       {children}
     </>
   );

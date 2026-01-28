@@ -1,4 +1,4 @@
-import { UseFormReturnType } from "@mantine/form/lib/use-form";
-import { ICardsAgainstHumanitySetupFormValues } from "../CardsAgainstHumanitySetupView/components";
+import { UseFormReturn } from 'react-hook-form';
+import { ICardsAgainstHumanitySetupFormValues } from '../CardsAgainstHumanitySetupView/components';
 
-export type ICahForm = UseFormReturnType<ICardsAgainstHumanitySetupFormValues>;
+export type ICahForm = UseFormReturn<ICardsAgainstHumanitySetupFormValues>;

@@ -1,11 +1,15 @@
-import * as React from "react";
-import { Container, Text } from "@mantine/core";
+import * as React from 'react';
+import { Container, Text } from '@radix-ui/themes';
 
-export const Loading: React.SFC = ({ children }) => (
+interface LoadingProps {
+  children?: React.ReactNode;
+}
+
+export const Loading: React.FC<LoadingProps> = ({ children }) => (
   <Container>
     <Text>Loading...</Text>
     {children && <Text>{children}</Text>}
   </Container>
 );
 
-Loading.displayName = "Loading";
+Loading.displayName = 'Loading';

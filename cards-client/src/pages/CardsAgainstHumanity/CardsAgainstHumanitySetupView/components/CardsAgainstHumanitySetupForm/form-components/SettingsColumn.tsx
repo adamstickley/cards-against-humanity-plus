@@ -1,10 +1,21 @@
-import * as React from "react";
-import { Grid } from "@mantine/core";
+import * as React from 'react';
+import { Box } from '@radix-ui/themes';
 
-export const SettingsColumn: React.FC = ({ children }) => {
+interface SettingsColumnProps {
+  children?: React.ReactNode;
+}
+
+export const SettingsColumn: React.FC<SettingsColumnProps> = ({ children }) => {
   return (
-    <Grid.Col span={12} lg={3} md={4} sm={6} xs={12}>
+    <Box
+      gridColumn={{
+        initial: 'span 12',
+        sm: 'span 6',
+        md: 'span 4',
+        lg: 'span 3',
+      }}
+    >
       {children}
-    </Grid.Col>
+    </Box>
   );
 };

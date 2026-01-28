@@ -1,49 +1,34 @@
-import React from "react";
-import {
-  ActionIcon,
-  Anchor,
-  AppShell,
-  Container,
-  Grid,
-  Header,
-} from "@mantine/core";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router-dom";
-import { MainRouter } from "./MainRouter";
-import { baseLocations } from "./routing";
+import React from 'react';
+import { Box, Container, Flex, IconButton, Link } from '@radix-ui/themes';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Link as RouterLink } from 'react-router-dom';
+import { MainRouter } from './MainRouter';
+import { baseLocations } from './routing';
 
 export const Main: React.FC = () => (
-  <AppShell
-    padding="md"
-    header={
-      <Header height={60} p="xs">
-        <Grid>
-          <Grid.Col span={1}>
-            <Anchor
-              component={Link}
-              to={baseLocations.Root.root.generateLocation({})}
-            >
-              <ActionIcon>
-                <FontAwesomeIcon icon="home" size="2x" />
-              </ActionIcon>
-            </Anchor>
-          </Grid.Col>
-        </Grid>
-      </Header>
-    }
-    styles={(theme) => ({
-      main: {
-        minHeight: "calc(100vh - 60px)",
-        boxSizing: "border-box",
-        backgroundColor:
-          theme.colorScheme === "dark"
-            ? theme.colors.dark[8]
-            : theme.colors.gray[0],
-      },
-    })}
-  >
-    <Container fluid pt="md">
+  <Box style={{ minHeight: '100vh' }}>
+    <Box
+      asChild
+      style={{
+        height: '60px',
+        borderBottom: '1px solid var(--gray-6)',
+      }}
+      p="2"
+    >
+      <header>
+        <Flex align="center" height="100%">
+          <Link asChild>
+            <RouterLink to={baseLocations.Root.root.generateLocation({})}>
+              <IconButton variant="ghost" size="3">
+                <FontAwesomeIcon icon="home" size="lg" />
+              </IconButton>
+            </RouterLink>
+          </Link>
+        </Flex>
+      </header>
+    </Box>
+    <Container size="4" p="4">
       <MainRouter />
     </Container>
-  </AppShell>
+  </Box>
 );

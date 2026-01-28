@@ -1,10 +1,11 @@
-import { Container, Grid, Text, Title } from "@mantine/core";
-import React from "react";
+import { Box, Container, Grid, Heading, Link, Text } from '@radix-ui/themes';
+import React from 'react';
 
 interface ErrorMessageProps {
   title: string;
   message?: string;
   hideContact?: boolean;
+  children?: React.ReactNode;
 }
 
 export const ErrorMessage: React.FC<ErrorMessageProps> = ({
@@ -13,29 +14,34 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   hideContact = false,
   children,
 }) => (
-  <div className="sr-error-message">
+  <Box className="sr-error-message">
     <Container>
-      <Grid>
-        <Grid.Col className="error-message" span={12} md={8} lg={6}>
-          <Title order={1}>{title}</Title>
+      <Grid columns={{ initial: '12' }} gap="3">
+        <Box
+          className="error-message"
+          gridColumn={{ initial: 'span 12', md: 'span 8', lg: 'span 6' }}
+        >
+          <Heading size="8" mb="3">
+            {title}
+          </Heading>
 
-          {!!message && <Text>{message}</Text>}
+          {!!message && <Text as="p">{message}</Text>}
 
           {children}
 
           {!hideContact && (
-            <Text>
-              If the problem persists, get in touch with us at{" "}
-              <a href="mailto:ask@cardsonline.io" target="blank">
+            <Text as="p">
+              If the problem persists, get in touch with us at{' '}
+              <Link href="mailto:ask@cardsonline.io" target="_blank">
                 ask@cardsonline.io
-              </a>{" "}
+              </Link>{' '}
               and we'll get onto it ASAP.
             </Text>
           )}
-        </Grid.Col>
+        </Box>
       </Grid>
     </Container>
-  </div>
+  </Box>
 );
 
-ErrorMessage.displayName = "ErrorMessage";
+ErrorMessage.displayName = 'ErrorMessage';

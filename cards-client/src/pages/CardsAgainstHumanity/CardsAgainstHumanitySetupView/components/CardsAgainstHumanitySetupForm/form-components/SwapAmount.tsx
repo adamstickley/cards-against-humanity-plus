@@ -1,21 +1,28 @@
-import { NumberInput } from "@mantine/core";
-import * as React from "react";
-import { ICahForm } from "../../../../types";
+import { Box, Text, TextField } from '@radix-ui/themes';
+import * as React from 'react';
+import { ICahForm } from '../../../../types';
 
 export const SwapAmount: React.FC<{
   form: ICahForm;
 }> = ({ form }) => {
+  const allowSwappingCards = form.watch('allowSwappingCards');
+
   return (
-    <NumberInput
-      label="Swap Limit"
-      description="Not applicable when swapping is disabled"
-      disabled={form.values.allowSwappingCards === "disallow"}
-      {...form.getInputProps("swapCardLimit")}
-      min={1}
-      max={50}
-      step={1}
-      stepHoldDelay={400}
-      stepHoldInterval={100}
-    />
+    <Box>
+      <Text as="label" size="2" weight="medium">
+        Swap Limit
+      </Text>
+      <Text as="p" size="1" color="gray" mb="1">
+        Not applicable when swapping is disabled
+      </Text>
+      <TextField.Root
+        type="number"
+        min={1}
+        max={50}
+        step={1}
+        disabled={allowSwappingCards === 'disallow'}
+        {...form.register('swapCardLimit', { valueAsNumber: true })}
+      />
+    </Box>
   );
 };

@@ -1,53 +1,55 @@
-import * as React from "react";
-import { Card, Text, Title } from "@mantine/core";
-import { GAME_MODES } from "../types";
-import { generatePrettyDurationString } from "../../../../../../utils";
-import { ICahForm } from "../../../../types";
+import * as React from 'react';
+import { Card, Heading, Text } from '@radix-ui/themes';
+import { GAME_MODES } from '../types';
+import { generatePrettyDurationString } from '../../../../../../utils';
+import { ICahForm } from '../../../../types';
 
 export const SettingsSummary: React.FC<{
   form: ICahForm;
 }> = ({ form }) => {
+  const formValues = form.watch();
+
   return (
     <Card>
-      <Title order={2} mb="md">
+      <Heading size="6" mb="3">
         Summary
-      </Title>
-      <Text size="md" my="sm">
-        <span style={{ fontWeight: "bolder" }}>Game Mode:</span>{" "}
-        {GAME_MODES[form.values.gameMode].label} (
-        {form.values.gameMode === "timed"
+      </Heading>
+      <Text as="p" size="3" my="2">
+        <span style={{ fontWeight: 'bold' }}>Game Mode:</span>{' '}
+        {GAME_MODES[formValues.gameMode].label} (
+        {formValues.gameMode === 'timed'
           ? generatePrettyDurationString(
               {
-                unit: "minutes",
-                value: form.values.ruleTime,
+                unit: 'minutes',
+                value: formValues.ruleTime,
               },
               {
                 showSeconds: false,
-              }
+              },
             )
-          : form.values[GAME_MODES[form.values.gameMode].inputName]}
+          : formValues[GAME_MODES[formValues.gameMode].inputName]}
         )
       </Text>
-      <Text size="md" my="sm">
-        <span style={{ fontWeight: "bolder" }}>Player limit:</span>{" "}
-        {form.values.maxPlayers}
+      <Text as="p" size="3" my="2">
+        <span style={{ fontWeight: 'bold' }}>Player limit:</span>{' '}
+        {formValues.maxPlayers}
       </Text>
-      <Text size="md" my="sm">
-        <span style={{ fontWeight: "bolder" }}>Round Timer:</span>{" "}
+      <Text as="p" size="3" my="2">
+        <span style={{ fontWeight: 'bold' }}>Round Timer:</span>{' '}
         {generatePrettyDurationString({
-          unit: "seconds",
-          value: form.values.roundTimer,
+          unit: 'seconds',
+          value: formValues.roundTimer,
         })}
       </Text>
-      <Text size="md" my="sm" transform="capitalize">
-        <span style={{ fontWeight: "bolder" }}>Duplicates:</span>{" "}
-        {form.values.duplicatePolicy}
+      <Text as="p" size="3" my="2" style={{ textTransform: 'capitalize' }}>
+        <span style={{ fontWeight: 'bold' }}>Duplicates:</span>{' '}
+        {formValues.duplicatePolicy}
       </Text>
-      <Text size="md" my="sm" transform="capitalize">
-        <span style={{ fontWeight: "bolder" }}>Swaps:</span>{" "}
-        {form.values.allowSwappingCards}
-        {form.values.allowSwappingCards === "disallow" ||
-          ` (${form.values.swapCardLimit})`}
+      <Text as="p" size="3" my="2" style={{ textTransform: 'capitalize' }}>
+        <span style={{ fontWeight: 'bold' }}>Swaps:</span>{' '}
+        {formValues.allowSwappingCards}
+        {formValues.allowSwappingCards === 'disallow' ||
+          ` (${formValues.swapCardLimit})`}
       </Text>
     </Card>
   );

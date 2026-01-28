@@ -1,62 +1,77 @@
-import * as React from "react";
-import { Card, Container, Grid, Title, useMantineTheme } from "@mantine/core";
-import { ICahCardSet, ICahForm } from "../../../../../types";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Position } from "../../../../../../../components";
+import * as React from 'react';
+import { Box, Card, Container, Grid, Heading } from '@radix-ui/themes';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ICahCardSet, ICahForm } from '../../../../../types';
+import { Position } from '../../../../../../../components';
 
 export const BasePackList: React.FC<{
   form: ICahForm;
   basePacks: ICahCardSet[];
 }> = ({ form, basePacks }) => {
-  const themes = useMantineTheme();
+  const selectedBasePack = form.watch('packSettings.basePack');
+
   const onClickFn = (selectedId: number) => {
-    return (event) => {
-      if (event.target.checked) {
-        form.setFieldValue("packSettings.basePack", selectedId);
-      }
+    return () => {
+      form.setValue('packSettings.basePack', selectedId);
     };
   };
 
   return (
-    <Grid columns={basePacks.length}>
+    <Grid
+      columns={{
+        initial: String(basePacks.length) as
+          | '1'
+          | '2'
+          | '3'
+          | '4'
+          | '5'
+          | '6'
+          | '7'
+          | '8'
+          | '9',
+      }}
+      gap="4"
+    >
       {basePacks
         .sort((a, b) => a.card_set_id - b.card_set_id)
         .map((basePack) => {
           const selectedId = basePack.card_set_id;
-          const isChecked = form.values["packSettings.basePack"] === selectedId;
+          const isChecked = selectedBasePack === selectedId;
           return (
-            <Grid.Col key={basePack.card_set_id} span={1}>
+            <Box key={basePack.card_set_id}>
               <Card
-                sx={{
-                  position: "relative",
-                  cursor: "pointer",
+                style={{
+                  position: 'relative',
+                  cursor: 'pointer',
                   border: `1px solid ${
                     isChecked
                       ? basePack.recommended
-                        ? themes.colors.yellow[2]
-                        : themes.colors.gray[6]
-                      : "transparent"
+                        ? 'var(--yellow-9)'
+                        : 'var(--gray-8)'
+                      : 'transparent'
                   }`,
                 }}
-                mb="md"
+                mb="3"
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  onClickFn(selectedId)({ target: { checked: !isChecked } }); // flip the checkbox
+                  onClickFn(selectedId)();
                 }}
               >
-                <Position top={-8} right={-8}>
-                  <FontAwesomeIcon // TODO: WHY YOU NO WORK
-                    icon="star"
-                    color={themes.colors.yellow[2]}
-                    size="2x"
-                  />
-                </Position>
-                <Container fluid={true}>
-                  <Title order={4}>{basePack.title}</Title>
+                {basePack.recommended && (
+                  <Position top={-8} right={-8}>
+                    <FontAwesomeIcon
+                      icon="star"
+                      color="var(--yellow-9)"
+                      size="2x"
+                    />
+                  </Position>
+                )}
+                <Container>
+                  <Heading size="4">{basePack.title}</Heading>
                 </Container>
               </Card>
-            </Grid.Col>
+            </Box>
           );
         })}
     </Grid>

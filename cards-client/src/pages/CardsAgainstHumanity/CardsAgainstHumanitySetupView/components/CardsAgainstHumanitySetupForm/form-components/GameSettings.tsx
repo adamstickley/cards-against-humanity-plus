@@ -1,14 +1,14 @@
-import * as React from "react";
-import { Grid, Title } from "@mantine/core";
-import { GameModeRadio } from "./GameModeRadio";
-import { GameModeRuleSetting } from "./GameModeRuleSetting";
-import { MaxPlayers } from "./MaxPlayers";
-import { CardDuplicatesPolicy } from "./CardDuplicatesPolicy";
-import { RoundTimer } from "./RoundTimer";
-import { AllowSwappingPolicy } from "./AllowSwappingPolicy";
-import { SwapAmount } from "./SwapAmount";
-import { SettingsColumn } from "./SettingsColumn";
-import { ICahForm } from "../../../../types";
+import * as React from 'react';
+import { Grid, Heading } from '@radix-ui/themes';
+import { ICahForm } from '../../../../types';
+import { GameModeRadio } from './GameModeRadio';
+import { GameModeRuleSetting } from './GameModeRuleSetting';
+import { MaxPlayers } from './MaxPlayers';
+import { CardDuplicatesPolicy } from './CardDuplicatesPolicy';
+import { RoundTimer } from './RoundTimer';
+import { AllowSwappingPolicy } from './AllowSwappingPolicy';
+import { SwapAmount } from './SwapAmount';
+import { SettingsColumn } from './SettingsColumn';
 
 export interface IGameSettingsProps {
   form: ICahForm;
@@ -17,11 +17,11 @@ export interface IGameSettingsProps {
 export const GameSettings: React.FC<IGameSettingsProps> = ({ form }) => {
   return (
     <>
-      <Title order={5} mt="xl" mb="sm">
+      <Heading size="3" mt="6" mb="2">
         End Condition
-      </Title>
+      </Heading>
       <GameModeRadio form={form} />
-      <Grid my="lg" columns={12}>
+      <Grid my="4" columns={{ initial: '12' }} gap="4">
         <SettingsColumn>
           <GameModeRuleSetting form={form} />
         </SettingsColumn>
@@ -41,8 +41,6 @@ export const GameSettings: React.FC<IGameSettingsProps> = ({ form }) => {
           <SwapAmount form={form} />
         </SettingsColumn>
       </Grid>
-      {/*whiteCardsPerRound?: number;*/}
-      {/*allowSwappingCards: number;*/}
     </>
   );
 };
