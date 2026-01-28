@@ -3,7 +3,7 @@ import {
   ICahRound,
   ICahPlayerHand,
   ICahScoreboard,
-} from '../../../pages/CardsAgainstHumanity/types';
+} from '../../../features/CardsAgainstHumanity/types';
 
 interface StartGameResponse {
   sessionId: number;
