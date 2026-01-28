@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/cards-server/bin/sql/cah_card_set_recommendations.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/cards-server/bin/sql/cah_card_sets.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/cards-server/bin/sql/cah_cards_sample_small.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/cards-server/bin/sql/games.sql" dialect="GenericSQL" />
+  </component>
+</project>

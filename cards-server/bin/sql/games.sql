@@ -1,0 +1,2 @@
+INSERT INTO public.games (game_id, slug, name, description, image, active) VALUES (1, 'cards-against-humanity', 'Cards Against Humanity', 'Some game that some people kinda like.', null, true);
+INSERT INTO public.games (game_id, slug, name, description, image, active) VALUES (2, 'new-phone-who-dis', 'New Phone, Who Dis?', 'Don''t leave your friends on read.', null, true);

@@ -1,0 +1,13 @@
+{
+  "exclude": ["node_modules"],
+  "files": ["./typings.d.ts", "./jsx-conditionals.d.ts"],
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "strictNullChecks": true,
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "sourceMap": false
+  }
+}
