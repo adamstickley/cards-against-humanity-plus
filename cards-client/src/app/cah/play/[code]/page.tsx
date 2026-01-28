@@ -31,7 +31,9 @@ const PLAYER_ID_STORAGE_KEY = 'cah_player_id';
 const SESSION_CODE_STORAGE_KEY = 'cah_session_code';
 
 const getStoredPlayerId = (code: string): number | null => {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined') {
+    return null;
+  }
   const storedCode = sessionStorage.getItem(SESSION_CODE_STORAGE_KEY);
   if (storedCode !== code) {
     return null;
@@ -160,7 +162,14 @@ export default function CahPlayPage() {
     } finally {
       setIsSelectingWinner(false);
     }
-  }, [code, round, selectedSubmissionId, api, currentPlayerId, scoreboardMutate]);
+  }, [
+    code,
+    round,
+    selectedSubmissionId,
+    api,
+    currentPlayerId,
+    scoreboardMutate,
+  ]);
 
   const handlePlayAgain = useCallback(async () => {
     if (!code || !currentPlayerId) {
