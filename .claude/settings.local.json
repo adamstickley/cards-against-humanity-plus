@@ -1,6 +1,12 @@
 {
   "permissions": {
     "allow": [
+      "Bash(git:*)",
+      "Bash(pnpm:*)",
+      "Bash(npm:*)",
+      "Bash(git *)",
+      "Bash(pnpm *)",
+      "Bash(npm *)",
       "Bash(pnpm install:*)",
       "Bash(npx tsc:*)",
       "Bash(source ~/.nvm/nvm.sh)",
@@ -12,11 +18,17 @@
       "Bash(./node_modules/.bin/tsc:*)",
       "Bash(pnpm run lint:*)",
       "Bash(pnpm run test:*)",
-      "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git config:*)",
       "Bash(node --version:*)",
-      "Bash(pnpm update:*)"
+      "Bash(pnpm update:*)",
+      "Bash(wc:*)",
+      "Read(/mnt/c/Users/Adam/WebstormProjects/**)",
+      "Read(../WebstormProjects/**)",
+      "Bash(pnpm jest:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run test:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm build:*)"
     ]
   }
 }

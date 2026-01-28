@@ -13,6 +13,8 @@ Create a "cards against humanity" style game where users can create/join rooms a
 - You should set your git name via flags, such as `git -c "user.name=Your Name" commit` so that completed tasks can be tracked to the correct developer. Do not change any other git config.
 - Create new subtasks in the TASKS.md file to break down larger tasks as needed. Keep tasks as isolated as reasonably possible.
 
+STRICTLY only using `git workflow`, and work within that workflow folder.
+
 # Project Structure
 
 The server files are located in the `cards-server/` folder.
