@@ -13,7 +13,10 @@
       "Bash(pnpm run lint:*)",
       "Bash(pnpm run test:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(node --version:*)",
+      "Bash(pnpm update:*)"
     ]
   }
 }

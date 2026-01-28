@@ -1,5 +1,7 @@
 # Completed Tasks
 
+[Fix] Typescript updated to latest version - David Claude 🤖 - COMPLETE
+
 [Fix] TypeORM updated to latest version - COMPLETE (already at 0.3.28)
 
 [Chore] Move to Radix UI components - Matilda Claude 🎨 - COMPLETE

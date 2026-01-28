@@ -10,7 +10,7 @@ Create a "cards against humanity" style game where users can create/join rooms a
 - Update this file with any relevant information for new developers.
 - Verify completed tasks via verbose tests and lack of lint/compile errors.
 - Any completed tasks should be moved to the COMPLETED_TASKS.md file. A commit should be made with the message "Completed task: [task name]".
-- You should change your git name via `git config user.name "Your Name"` so that completed tasks can be tracked to the correct developer. Unset the name when done via `git config --unset user.name`.
+- You should set your git name via flags, such as `git -c "user.name=Your Name" commit` so that completed tasks can be tracked to the correct developer. Do not change any other git config.
 - Create new subtasks in the TASKS.md file to break down larger tasks as needed. Keep tasks as isolated as reasonably possible.
 
 # Project Structure
