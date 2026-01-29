@@ -20,6 +20,8 @@
 - Removed deprecated packages (@typescript-eslint/parser, @typescript-eslint/eslint-plugin)
 - All linting passes with no errors in both projects
 
+[Main Feature] Simple functional Cards against humanity game - COMPLETE
+
 [Task] Create game session database schema 🎲 James Claude - COMPLETE
 - Created 7 new TypeORM entities for CAH game sessions:
   - CahGameSessionEntity: Main session tracking (code, status, settings)
@@ -89,6 +91,8 @@
 - Added DTOs with validation (StartGameDto, SubmitCardsDto, SelectWinnerDto)
 - Added 19 unit tests for service
 - All 36 tests pass (entity + session + round tests)
+
+[Main Feature] Multiplayer support - COMPLETE
 
 [Task] Add WebSocket support for real-time updates 🔌 Matilta Claude - COMPLETE
 - Created CahGameGatewayModule with CahGameGateway for real-time WebSocket communication
@@ -172,6 +176,8 @@
 - Added play route to cahLocations.ts (/cah/play/:code)
 - Updated router to include the play view
 - All linting passes with no errors
+
+[Main Feature] Scoring system - COMPLETE
 
 [Task] Track points per player in database 📊 Billy Claude - COMPLETE
 - Verified existing implementation in CahSessionPlayerEntity.score field (integer, default: 0)
@@ -265,6 +271,8 @@
 - Session storage for player ID persistence
 - Build passes successfully with TypeScript
 
+[Main Feature] Customizable card decks - COMPLETE
+
 [Task] Allow selecting multiple card packs for a game session 🎴 James Claude - COMPLETE
 - Implemented SuggestedPacksSelector component for the default "suggested" pack mode:
   - Auto-selects all recommended expansion packs on first load
@@ -303,6 +311,8 @@
   - Game settings (max players, score to win, round timer) are also remembered
 - All linting passes with no errors
 - All 99 server tests pass
+
+[Main Feature] Custom cards - COMPLETE
 
 [Task] Create custom card submission form 📝 James Claude - COMPLETE
 - Created ICustomCard type interface:
