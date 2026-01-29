@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Box, Button, Flex, IconButton } from '@radix-ui/themes';
-import { HomeIcon } from '@radix-ui/react-icons';
+import { GearIcon, HomeIcon } from '@radix-ui/react-icons';
 import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 export const Header: React.FC = () => {
@@ -30,6 +30,11 @@ export const Header: React.FC = () => {
               </Link>
             </SignedOut>
             <SignedIn>
+              <Link href="/settings">
+                <IconButton variant="ghost" size="2">
+                  <GearIcon width={18} height={18} />
+                </IconButton>
+              </Link>
               <UserButton />
             </SignedIn>
           </Flex>

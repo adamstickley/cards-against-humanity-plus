@@ -464,3 +464,22 @@
   - Added IUserPreferences and IUpdatePreferencesRequest interfaces
   - Added getPreferences() and updatePreferences() methods to UsersApi
 - All linting passes with no errors
+
+[Task] Build user settings page UI ⚙️ Billy Claude - COMPLETE
+- Created settings page at /settings:
+  - Profile section with preferred nickname field
+  - Default game settings section with:
+    - Score to win (1-20)
+    - Max players (3-20)
+    - Cards per hand (5-15)
+    - Round timer in seconds (30-300, optional)
+  - Loading state while fetching preferences
+  - Save button with success/error feedback
+  - Auto-clears save message after 3 seconds
+- Updated Header component:
+  - Added gear icon (GearIcon from Radix) linking to /settings
+  - Only visible when user is signed in
+  - Positioned next to UserButton
+- Settings page is protected by Clerk middleware (requires authentication)
+- Uses Radix UI Themes components (Card, TextField, Button, Separator)
+- All linting passes with no errors
