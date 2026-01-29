@@ -12,6 +12,8 @@ yarn-error.log*
 lerna-debug.log*
 
 # Environment
+cards-client/.env
+cards-server/.env
 .env
 */.env
 *.env.*
