@@ -21,6 +21,7 @@ import {
   useCahCardSets,
   usePackPreferences,
   useCustomCards,
+  useUserGamePreferences,
 } from '@/features/CardsAgainstHumanity/hooks';
 import { CardsAgainstHumanitySetupForm } from '@/features/CardsAgainstHumanity/CardsAgainstHumanitySetupView/components/CardsAgainstHumanitySetupForm/CardsAgainstHumanitySetupForm';
 import { ICardsAgainstHumanitySetupFormValues } from '@/features/CardsAgainstHumanity/CardsAgainstHumanitySetupView/components';
@@ -40,7 +41,16 @@ export default function CahSetupPage() {
   const [game, gameMeta] = useGame(CARD_AGAINST_HUMANITY);
   const [cardSets, cardSetMeta] = useCahCardSets();
   const meta = combinedServiceHookMeta([gameMeta, cardSetMeta]);
-  const { preferences, isLoaded, savePreferences } = usePackPreferences();
+  const {
+    preferences: localPreferences,
+    isLoaded: localPrefsLoaded,
+    savePreferences,
+  } = usePackPreferences();
+  const {
+    preferences: userPreferences,
+    isLoaded: userPrefsLoaded,
+    isLoggedIn,
+  } = useUserGamePreferences();
   const {
     cards: customCards,
     isLoaded: customCardsLoaded,
@@ -48,11 +58,34 @@ export default function CahSetupPage() {
     removeCard: removeCustomCard,
   } = useCustomCards();
 
+  // Merge preferences: user preferences override local for game settings when logged in
+  const mergedPreferences = {
+    ...localPreferences,
+    gameSettings: isLoggedIn
+      ? {
+          maxPlayers: userPreferences.defaultMaxPlayers,
+          scoreToWin: userPreferences.defaultScoreToWin,
+          roundTimer: userPreferences.defaultRoundTimerSeconds || 0,
+        }
+      : localPreferences.gameSettings,
+  };
+
+  const isLoaded = localPrefsLoaded && userPrefsLoaded;
+
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
   const [joinCode, setJoinCode] = useState('');
-  const [joinNickname, setJoinNickname] = useState('');
+  const [joinNickname, setJoinNickname] = useState(
+    userPreferences.preferredNickname || '',
+  );
   const [joinError, setJoinError] = useState<string | null>(null);
+
+  // Update join nickname when user preferences load
+  React.useEffect(() => {
+    if (userPrefsLoaded && userPreferences.preferredNickname) {
+      setJoinNickname(userPreferences.preferredNickname);
+    }
+  }, [userPrefsLoaded, userPreferences.preferredNickname]);
 
   const submitHandler = useCallback(
     async (values: ICardsAgainstHumanitySetupFormValues) => {
@@ -198,11 +231,12 @@ export default function CahSetupPage() {
                 onSubmit={submitHandler}
                 cardSets={cardSets}
                 isSubmitting={isCreating}
-                savedPreferences={preferences}
+                savedPreferences={mergedPreferences}
                 onSavePreferences={savePreferences}
                 customCards={customCards}
                 onAddCustomCard={addCustomCard}
                 onRemoveCustomCard={removeCustomCard}
+                defaultNickname={userPreferences.preferredNickname || undefined}
               />
             )}
           </Page>

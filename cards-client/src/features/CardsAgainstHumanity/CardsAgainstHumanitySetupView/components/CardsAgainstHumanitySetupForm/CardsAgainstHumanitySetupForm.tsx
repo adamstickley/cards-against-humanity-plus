@@ -31,6 +31,7 @@ export interface ICardsAgainstHumanitySetupFormProps {
   customCards?: ICustomCard[];
   onAddCustomCard?: (card: Omit<ICustomCard, 'id' | 'createdAt'>) => void;
   onRemoveCustomCard?: (cardId: string) => void;
+  defaultNickname?: string;
 }
 
 export const CardsAgainstHumanitySetupForm: React.FC<
@@ -44,6 +45,7 @@ export const CardsAgainstHumanitySetupForm: React.FC<
   customCards = [],
   onAddCustomCard,
   onRemoveCustomCard,
+  defaultNickname,
 }) => {
   const defaultBasePack = useMemo(() => {
     if (savedPreferences?.basePack) {
@@ -73,7 +75,7 @@ export const CardsAgainstHumanitySetupForm: React.FC<
 
   const form = useForm<ICardsAgainstHumanitySetupFormValues>({
     defaultValues: {
-      nickname: '',
+      nickname: defaultNickname ?? '',
       packMode: savedPreferences?.packMode ?? 'suggested',
       gameMode: 'score',
       maxPlayers: savedPreferences?.gameSettings?.maxPlayers ?? 10,
