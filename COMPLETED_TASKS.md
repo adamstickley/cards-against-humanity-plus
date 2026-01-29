@@ -588,3 +588,18 @@
   - CahGameRoundModule imports CahGameEventModule
   - CahGameGatewayModule imports CahGameEventModule
 - All linting passes with no errors
+
+[Task] Log round events (start, submit, judge, winner) 🔄 Billy Claude - COMPLETE
+- Integrated round event logging into CahGameRoundService:
+- startGame method:
+  - Logs ROUND_STARTED with judge info, prompt card details, and pick count
+- submitCards method:
+  - Logs ROUND_CARDS_SUBMITTED with player info, card IDs, card texts, and submission order
+  - Logs ROUND_JUDGING_STARTED when all players have submitted (with submission count)
+- selectWinner method:
+  - Logs ROUND_WINNER_SELECTED with winner info, winning cards, and new score
+  - Logs ROUND_STARTED for next round (with judge info and prompt details)
+- Added helper methods:
+  - getPromptCardInfo: Retrieves prompt card text and pick count
+  - getCardTexts: Retrieves card texts for regular and custom cards
+- All linting passes with no errors

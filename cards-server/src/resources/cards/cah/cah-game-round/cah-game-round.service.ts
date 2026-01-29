@@ -102,6 +102,20 @@ export class CahGameRoundService {
 
       await queryRunner.commitTransaction();
 
+      // Log round started event
+      const judgePlayer = connectedPlayers.find(
+        (p) => p.session_player_id === round.judge_player_id,
+      );
+      const promptCard = await this.getPromptCardInfo(round);
+      await this.eventService.logRoundStarted(session.session_id, {
+        roundNumber: round.round_number,
+        judgePlayerId: round.judge_player_id,
+        judgeNickname: judgePlayer?.nickname || 'Unknown',
+        promptCardId: round.prompt_card_id || round.custom_prompt_card_id || 0,
+        promptText: promptCard?.text || '',
+        pickCount: promptCard?.pick || 1,
+      });
+
       return { session, round };
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -263,15 +277,38 @@ export class CahGameRoundService {
         (p) => p.is_connected && p.session_player_id !== round.judge_player_id,
       );
 
-      if (
+      const transitionToJudging =
         updatedRound &&
-        updatedRound.submissions.length >= nonJudgePlayers.length
-      ) {
+        updatedRound.submissions.length >= nonJudgePlayers.length;
+
+      if (transitionToJudging && updatedRound) {
         updatedRound.status = 'judging';
         await queryRunner.manager.save(updatedRound);
       }
 
       await queryRunner.commitTransaction();
+
+      // Log cards submitted event
+      const submittedCardTexts = await this.getCardTexts(
+        [...regularSubmittedIds],
+        customSubmittedIds,
+      );
+      await this.eventService.logCardsSubmitted(session.session_id, {
+        roundNumber: round.round_number,
+        playerId: dto.playerId,
+        nickname: player.nickname,
+        cardIds: [...regularSubmittedIds, ...customSubmittedIds],
+        cardTexts: submittedCardTexts,
+        submissionOrder: updatedRound?.submissions.length || 1,
+      });
+
+      // Log judging started event if transitioning to judging phase
+      if (transitionToJudging && updatedRound) {
+        await this.eventService.logJudgingStarted(session.session_id, {
+          roundNumber: round.round_number,
+          submissionCount: updatedRound.submissions.length,
+        });
+      }
 
       return savedSubmission;
     } catch (error) {
@@ -376,6 +413,30 @@ export class CahGameRoundService {
 
       await queryRunner.commitTransaction();
 
+      // Log winner selected event
+      if (winner) {
+        const winningSubmissionWithCards = await this.submissionRepo.findOne({
+          where: { submission_id: dto.winningSubmissionId },
+          relations: ['cards', 'cards.card', 'cards.custom_card'],
+        });
+        const winningCards =
+          winningSubmissionWithCards?.cards
+            .sort((a, b) => a.card_order - b.card_order)
+            .map((c) => ({
+              id: c.card?.card_id ?? c.custom_card_id ?? 0,
+              text: c.card?.card_text ?? c.custom_card?.card_text ?? '',
+            })) || [];
+
+        await this.eventService.logWinnerSelected(session.session_id, {
+          roundNumber: round.round_number,
+          winnerId: winner.session_player_id,
+          winnerNickname: winner.nickname,
+          winningCardIds: winningCards.map((c) => c.id),
+          winningCardTexts: winningCards.map((c) => c.text),
+          newScore: winner.score,
+        });
+      }
+
       // Log game ended event if the game is over
       if (gameOver && winner) {
         const finalScores = session.players
@@ -394,6 +455,24 @@ export class CahGameRoundService {
           winnerNickname: winner.nickname,
           winnerScore: winner.score,
           finalScores,
+        });
+      }
+
+      // Log next round started event if game continues
+      if (nextRound && !gameOver) {
+        const connectedPlayers = session.players.filter((p) => p.is_connected);
+        const judgePlayer = connectedPlayers.find(
+          (p) => p.session_player_id === nextRound.judge_player_id,
+        );
+        const promptCard = await this.getPromptCardInfo(nextRound);
+        await this.eventService.logRoundStarted(session.session_id, {
+          roundNumber: nextRound.round_number,
+          judgePlayerId: nextRound.judge_player_id,
+          judgeNickname: judgePlayer?.nickname || 'Unknown',
+          promptCardId:
+            nextRound.prompt_card_id || nextRound.custom_prompt_card_id || 0,
+          promptText: promptCard?.text || '',
+          pickCount: promptCard?.pick || 1,
         });
       }
 
@@ -732,5 +811,54 @@ export class CahGameRoundService {
       [array[i], array[j]] = [array[j], array[i]];
     }
     return array;
+  }
+
+  private async getPromptCardInfo(
+    round: CahGameRoundEntity,
+  ): Promise<{ text: string; pick: number } | null> {
+    if (round.prompt_card_id) {
+      const card = await this.cardRepo.findOne({
+        where: { card_id: round.prompt_card_id },
+      });
+      return card ? { text: card.card_text, pick: card.pick || 1 } : null;
+    }
+    if (round.custom_prompt_card_id) {
+      const card = await this.customCardRepo.findOne({
+        where: { custom_card_id: round.custom_prompt_card_id },
+      });
+      return card ? { text: card.card_text, pick: card.pick || 1 } : null;
+    }
+    return null;
+  }
+
+  private async getCardTexts(
+    regularCardIds: number[],
+    customCardIds: number[],
+  ): Promise<string[]> {
+    const texts: string[] = [];
+
+    if (regularCardIds.length > 0) {
+      const cards = await this.cardRepo.find({
+        where: { card_id: In(regularCardIds) },
+      });
+      const cardMap = new Map(cards.map((c) => [c.card_id, c.card_text]));
+      for (const id of regularCardIds) {
+        texts.push(cardMap.get(id) || '');
+      }
+    }
+
+    if (customCardIds.length > 0) {
+      const customCards = await this.customCardRepo.find({
+        where: { custom_card_id: In(customCardIds) },
+      });
+      const customCardMap = new Map(
+        customCards.map((c) => [c.custom_card_id, c.card_text]),
+      );
+      for (const id of customCardIds) {
+        texts.push(customCardMap.get(id) || '');
+      }
+    }
+
+    return texts;
   }
 }
