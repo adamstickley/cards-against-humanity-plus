@@ -20,6 +20,7 @@ import { Page } from '@/components';
 import {
   useCahCardSets,
   usePackPreferences,
+  useCustomCards,
 } from '@/features/CardsAgainstHumanity/hooks';
 import { CardsAgainstHumanitySetupForm } from '@/features/CardsAgainstHumanity/CardsAgainstHumanitySetupView/components/CardsAgainstHumanitySetupForm/CardsAgainstHumanitySetupForm';
 import { ICardsAgainstHumanitySetupFormValues } from '@/features/CardsAgainstHumanity/CardsAgainstHumanitySetupView/components';
@@ -40,6 +41,12 @@ export default function CahSetupPage() {
   const [cardSets, cardSetMeta] = useCahCardSets();
   const meta = combinedServiceHookMeta([gameMeta, cardSetMeta]);
   const { preferences, isLoaded, savePreferences } = usePackPreferences();
+  const {
+    cards: customCards,
+    isLoaded: customCardsLoaded,
+    addCard: addCustomCard,
+    removeCard: removeCustomCard,
+  } = useCustomCards();
 
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
@@ -176,13 +183,16 @@ export default function CahSetupPage() {
             <Heading size="5" mb="4">
               Create a New Game
             </Heading>
-            {isLoaded && (
+            {isLoaded && customCardsLoaded && (
               <CardsAgainstHumanitySetupForm
                 onSubmit={submitHandler}
                 cardSets={cardSets}
                 isSubmitting={isCreating}
                 savedPreferences={preferences}
                 onSavePreferences={savePreferences}
+                customCards={customCards}
+                onAddCustomCard={addCustomCard}
+                onRemoveCustomCard={removeCustomCard}
               />
             )}
           </Page>

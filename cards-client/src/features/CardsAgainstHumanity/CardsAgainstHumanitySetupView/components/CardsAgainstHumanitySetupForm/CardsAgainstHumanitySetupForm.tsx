@@ -1,10 +1,19 @@
 import React, { useCallback, useMemo } from 'react';
-import { Box, Button, Grid, Heading, Text, TextField } from '@radix-ui/themes';
+import {
+  Box,
+  Button,
+  Grid,
+  Heading,
+  Separator,
+  Text,
+  TextField,
+} from '@radix-ui/themes';
 import { useForm } from 'react-hook-form';
 import { Hide } from '../../../../../components';
 import { CustomPackSelector } from '../CustomPackSelector';
 import { SuggestedPacksSelector } from '../SuggestedPacksSelector';
-import { ICahCardSet } from '../../../types';
+import { CustomCardsSection } from '../CustomCardsSection';
+import { ICahCardSet, ICustomCard } from '../../../types';
 import { IDeckPreferences } from '../../../hooks/usePackPreferences';
 import {
   GameSettings,
@@ -19,6 +28,9 @@ export interface ICardsAgainstHumanitySetupFormProps {
   isSubmitting?: boolean;
   savedPreferences?: IDeckPreferences;
   onSavePreferences?: (preferences: IDeckPreferences) => void;
+  customCards?: ICustomCard[];
+  onAddCustomCard?: (card: Omit<ICustomCard, 'id' | 'createdAt'>) => void;
+  onRemoveCustomCard?: (cardId: string) => void;
 }
 
 export const CardsAgainstHumanitySetupForm: React.FC<
@@ -29,6 +41,9 @@ export const CardsAgainstHumanitySetupForm: React.FC<
   isSubmitting,
   savedPreferences,
   onSavePreferences,
+  customCards = [],
+  onAddCustomCard,
+  onRemoveCustomCard,
 }) => {
   const defaultBasePack = useMemo(() => {
     if (savedPreferences?.basePack) {
@@ -146,6 +161,18 @@ export const CardsAgainstHumanitySetupForm: React.FC<
         {formValues.packMode === 'custom' && (
           <CustomPackSelector form={form} cardSets={cardSets} />
         )}
+
+        {onAddCustomCard && onRemoveCustomCard && (
+          <>
+            <Separator size="4" my="6" />
+            <CustomCardsSection
+              cards={customCards}
+              onAddCard={onAddCustomCard}
+              onRemoveCard={onRemoveCustomCard}
+            />
+          </>
+        )}
+
         <Box mt="6">
           <Button
             type="submit"

@@ -31,6 +31,6 @@ Subtasks:
 [Main Feature] Custom cards
 
 Subtasks:
-- [Task] Create custom card submission form
+- [Task] Create custom card submission form 📝 James Claude - COMPLETE
 - [Task] Store user-created cards in database
 - [Task] Allow custom cards to be used in games
