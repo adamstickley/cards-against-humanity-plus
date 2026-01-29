@@ -1,6 +1,6 @@
 {
   "name": "cards",
   "scripts": {
-    "start": "npx concurrently \"cd cards-server && pnpm run:dev\" \"cd cards-client && pnpm run dev\""
+    "start": "npx concurrently \"cd cards-server && pnpm start\" \"cd cards-client && pnpm start\""
   }
 }

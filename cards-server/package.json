@@ -15,7 +15,6 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nodemon --config nodemon.json",
     "db:load:data": "bin/load-data.sh",
     "start:debug": "nest start --debug --watch",
     "typeorm:migration:generate": "npx typeorm-ts-node-esm migration:generate -d ./ormconfig.ts -p",
