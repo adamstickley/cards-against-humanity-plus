@@ -3,7 +3,7 @@ import { RouterModule } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CardsModule, GameModule } from './resources';
+import { CardsModule, GameModule, UsersModule } from './resources';
 import { configService } from './config';
 import { routes } from './routes';
 
@@ -12,6 +12,7 @@ import { routes } from './routes';
     RouterModule.register(routes),
     CardsModule,
     GameModule,
+    UsersModule,
     TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
   ],
   controllers: [AppController],

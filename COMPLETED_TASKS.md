@@ -410,3 +410,22 @@
   - Updated setup page to pass custom cards when creating a session
 - All linting passes with no errors
 - All 99 server tests pass
+
+[Task] Create user entity and sync Clerk user data to database 🔗 Billy Claude - COMPLETE
+- Server-side:
+  - Created UserEntity in src/entities/common/user.entity.ts:
+    - clerk_user_id (primary key, varchar 100)
+    - email (varchar 255, nullable)
+    - display_name (varchar 100, nullable)
+    - avatar_url (varchar 500, nullable)
+    - created_at and updated_at timestamps
+  - Created UsersModule with controller and service:
+    - POST /users/sync - Sync/create user from Clerk data
+    - GET /users/:clerkUserId - Get user by Clerk ID
+    - PATCH /users/:clerkUserId/display-name - Update display name
+  - Installed @clerk/backend package for future webhook support
+- Client-side:
+  - Created UsersApi client with IUser interface and ISyncUserRequest
+  - Created useUserSync hook that automatically syncs user data when signed in
+  - Added UserSyncProvider to Providers component for automatic sync on sign-in
+- All linting passes with no errors

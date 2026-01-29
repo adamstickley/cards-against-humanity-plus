@@ -2,11 +2,18 @@
 
 import React from 'react';
 import { Theme } from '@radix-ui/themes';
-import { ApiProvider } from '@/api';
+import { ApiProvider, useUserSync } from '@/api';
 import { EnvironmentConfigurator } from '@/config';
 
 type ProvidersProps = {
   children: React.ReactNode;
+};
+
+const UserSyncProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  useUserSync();
+  return <>{children}</>;
 };
 
 export const Providers: React.FC<ProvidersProps> = ({ children }) => {
@@ -20,7 +27,7 @@ export const Providers: React.FC<ProvidersProps> = ({ children }) => {
       <ApiProvider
         baseUrl={EnvironmentConfigurator.getEnvironment().generateApiRoute()}
       >
-        {children}
+        <UserSyncProvider>{children}</UserSyncProvider>
       </ApiProvider>
     </Theme>
   );

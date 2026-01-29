@@ -1,4 +1,4 @@
-import { CahModule, CardsModule } from './resources';
+import { CahModule, CardsModule, UsersModule } from './resources';
 
 export const routes = [
   {
@@ -10,5 +10,9 @@ export const routes = [
         module: CahModule,
       },
     ],
+  },
+  {
+    path: 'users',
+    module: UsersModule,
   },
 ];
