@@ -503,3 +503,17 @@
   - Max players (from user preferences when logged in)
   - Round timer (from user preferences when logged in)
 - All linting passes with no errors
+
+[Task] Add preferred display name for games 🏷️ Billy Claude - COMPLETE
+- Updated Header component to display user's preferred game nickname:
+  - Shows preferred nickname next to the user avatar when signed in
+  - Uses Tooltip component to indicate "Your game nickname"
+  - Only displays when user has set a preferred nickname in settings
+  - Uses useUserGamePreferences hook to fetch the nickname
+- Complete user nickname flow:
+  - Users can set their preferred nickname in /settings page
+  - Nickname is stored server-side in user_preferences table
+  - Nickname is displayed in header as a visual reminder
+  - Nickname is pre-filled in both "Create Game" and "Join Game" forms
+  - All nickname fields respect the 50 character limit
+- All linting passes with no errors

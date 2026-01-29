@@ -2,11 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Box, Button, Flex, IconButton } from '@radix-ui/themes';
+import { Box, Button, Flex, IconButton, Text, Tooltip } from '@radix-ui/themes';
 import { GearIcon, HomeIcon } from '@radix-ui/react-icons';
 import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { useUserGamePreferences } from '@/features/CardsAgainstHumanity/hooks';
 
 export const Header: React.FC = () => {
+  const { preferences, isLoaded, isLoggedIn } = useUserGamePreferences();
+
   return (
     <Box
       style={{
@@ -30,6 +33,13 @@ export const Header: React.FC = () => {
               </Link>
             </SignedOut>
             <SignedIn>
+              {isLoaded && isLoggedIn && preferences.preferredNickname && (
+                <Tooltip content="Your game nickname">
+                  <Text size="2" weight="medium" color="gray">
+                    {preferences.preferredNickname}
+                  </Text>
+                </Tooltip>
+              )}
               <Link href="/settings">
                 <IconButton variant="ghost" size="2">
                   <GearIcon width={18} height={18} />
