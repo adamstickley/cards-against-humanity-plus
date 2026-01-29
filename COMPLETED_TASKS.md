@@ -333,3 +333,28 @@
   - Cards persist in browser localStorage for future games
 - All linting passes with no errors
 - All 99 server tests pass
+
+[Task] Store user-created cards in database 💾 Matilta Claude - COMPLETE
+- Created CahSessionCustomCardEntity for storing custom cards per session:
+  - custom_card_id (auto-increment primary key)
+  - session_id (foreign key to game session)
+  - card_text (varchar 500)
+  - card_type (prompt/response)
+  - pick (nullable, for prompt cards)
+  - created_at (auto timestamp)
+- Created custom card DTOs:
+  - CreateCustomCardDto with validation (text, cardType, pick)
+  - CustomCardResponseDto for API responses
+- Added service methods to CahGameSessionService:
+  - addCustomCard(code, dto): Creates and stores a custom card for a session
+  - removeCustomCard(code, customCardId): Deletes a custom card
+  - getCustomCards(code): Returns all custom cards for a session
+- Added REST API endpoints:
+  - POST /session/:code/custom-cards - Add a custom card to session
+  - GET /session/:code/custom-cards - Get all custom cards for session
+  - DELETE /session/:code/custom-cards/:cardId - Remove a custom card
+- Updated CahGameSessionModule with new entity TypeORM registration
+- Updated entity index to export new entity
+- Updated test file with mock repository for custom cards
+- All linting passes with no errors
+- All 99 server tests pass

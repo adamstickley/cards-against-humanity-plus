@@ -9,6 +9,7 @@ import {
   CahSessionCardPackEntity,
   CahCardSetEntity,
   CahGameRoundEntity,
+  CahSessionCustomCardEntity,
 } from '../../../../entities';
 
 describe('CahGameSessionService', () => {
@@ -81,6 +82,16 @@ describe('CahGameSessionService', () => {
               getRawMany: jest.fn(),
             }),
             find: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(CahSessionCustomCardEntity),
+          useValue: {
+            create: jest.fn(),
+            save: jest.fn(),
+            find: jest.fn(),
+            findOne: jest.fn(),
+            remove: jest.fn(),
           },
         },
         {

@@ -32,5 +32,5 @@ Subtasks:
 
 Subtasks:
 - [Task] Create custom card submission form 📝 James Claude - COMPLETE
-- [Task] Store user-created cards in database
-- [Task] Allow custom cards to be used in games
+- [Task] Store user-created cards in database 💾 Matilta Claude - COMPLETE
+- [Task] Allow custom cards to be used in games 🎯 James Claude - IN PROGRESS

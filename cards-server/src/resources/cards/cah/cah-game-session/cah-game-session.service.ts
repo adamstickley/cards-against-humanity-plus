@@ -11,6 +11,7 @@ import {
   CahSessionCardPackEntity,
   CahCardSetEntity,
   CahGameRoundEntity,
+  CahSessionCustomCardEntity,
 } from '../../../../entities';
 import {
   CreateSessionDto,
@@ -19,6 +20,8 @@ import {
   ScoreboardPlayerDto,
   PlayerScoreHistoryDto,
   RoundWinDto,
+  CreateCustomCardDto,
+  CustomCardResponseDto,
 } from './dto';
 
 @Injectable()
@@ -34,6 +37,8 @@ export class CahGameSessionService {
     private readonly cardSetRepo: Repository<CahCardSetEntity>,
     @InjectRepository(CahGameRoundEntity)
     private readonly roundRepo: Repository<CahGameRoundEntity>,
+    @InjectRepository(CahSessionCustomCardEntity)
+    private readonly customCardRepo: Repository<CahSessionCustomCardEntity>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -333,6 +338,87 @@ export class CahGameSessionService {
       totalScore: player.score,
       roundsWon,
     };
+  }
+
+  async addCustomCard(
+    code: string,
+    dto: CreateCustomCardDto,
+  ): Promise<CustomCardResponseDto> {
+    const session = await this.sessionRepo.findOne({
+      where: { code: code.toUpperCase() },
+    });
+
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
+
+    if (dto.cardType === 'response' && dto.pick) {
+      throw new BadRequestException(
+        'Pick value is only allowed for prompt cards',
+      );
+    }
+
+    const customCard = new CahSessionCustomCardEntity();
+    customCard.session_id = session.session_id;
+    customCard.card_text = dto.text;
+    customCard.card_type = dto.cardType;
+    customCard.pick = dto.cardType === 'prompt' ? (dto.pick ?? 1) : null;
+
+    const savedCard = await this.customCardRepo.save(customCard);
+
+    return {
+      customCardId: savedCard.custom_card_id,
+      text: savedCard.card_text,
+      cardType: savedCard.card_type,
+      pick: savedCard.pick,
+      createdAt: savedCard.created_at,
+    };
+  }
+
+  async removeCustomCard(code: string, customCardId: number): Promise<void> {
+    const session = await this.sessionRepo.findOne({
+      where: { code: code.toUpperCase() },
+    });
+
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
+
+    const customCard = await this.customCardRepo.findOne({
+      where: {
+        custom_card_id: customCardId,
+        session_id: session.session_id,
+      },
+    });
+
+    if (!customCard) {
+      throw new NotFoundException('Custom card not found in this session');
+    }
+
+    await this.customCardRepo.remove(customCard);
+  }
+
+  async getCustomCards(code: string): Promise<CustomCardResponseDto[]> {
+    const session = await this.sessionRepo.findOne({
+      where: { code: code.toUpperCase() },
+    });
+
+    if (!session) {
+      throw new NotFoundException('Session not found');
+    }
+
+    const customCards = await this.customCardRepo.find({
+      where: { session_id: session.session_id },
+      order: { created_at: 'ASC' },
+    });
+
+    return customCards.map((card) => ({
+      customCardId: card.custom_card_id,
+      text: card.card_text,
+      cardType: card.card_type,
+      pick: card.pick,
+      createdAt: card.created_at,
+    }));
   }
 
   private async generateUniqueCode(): Promise<string> {

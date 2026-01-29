@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -9,7 +10,7 @@ import {
 import { CahGameSessionService } from './cah-game-session.service';
 import { CahCardDealerService } from './cah-card-dealer.service';
 import { CahGameGateway, PlayerPresenceService } from '../cah-game-gateway';
-import { CreateSessionDto, JoinSessionDto } from './dto';
+import { CreateSessionDto, JoinSessionDto, CreateCustomCardDto } from './dto';
 
 @Controller('session')
 export class CahGameSessionController {
@@ -191,5 +192,27 @@ export class CahGameSessionController {
     @Param('playerId', ParseIntPipe) playerId: number,
   ) {
     return this.sessionService.getPlayerScoreHistory(code, playerId);
+  }
+
+  @Post(':code/custom-cards')
+  async addCustomCard(
+    @Param('code') code: string,
+    @Body() dto: CreateCustomCardDto,
+  ) {
+    return this.sessionService.addCustomCard(code, dto);
+  }
+
+  @Get(':code/custom-cards')
+  async getCustomCards(@Param('code') code: string) {
+    return this.sessionService.getCustomCards(code);
+  }
+
+  @Delete(':code/custom-cards/:cardId')
+  async removeCustomCard(
+    @Param('code') code: string,
+    @Param('cardId', ParseIntPipe) cardId: number,
+  ) {
+    await this.sessionService.removeCustomCard(code, cardId);
+    return { success: true };
   }
 }
