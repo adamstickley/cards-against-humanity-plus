@@ -549,3 +549,25 @@
   - created_at (timestamp)
   - Indexes on session_id+created_at and event_type for efficient querying
 - All linting passes with no errors
+
+[Task] Create game event entity for database storage 💾 Billy Claude - COMPLETE
+- Entity created as part of "Design event types and schema" task (see above)
+
+[Task] Create event logging service on server 🔧 Billy Claude - COMPLETE
+- Created CahGameEventModule in src/resources/cards/cah/cah-game-event/:
+  - cah-game-event.module.ts: NestJS module with TypeORM entity registration
+  - cah-game-event.service.ts: Injectable service with logging methods
+  - index.ts: Barrel export file
+- CahGameEventService provides typed logging methods:
+  - Session events: logSessionCreated, logPlayerJoined, logPlayerLeft, logGameStarted, logGameEnded
+  - Round events: logRoundStarted, logCardsSubmitted, logJudgingStarted, logWinnerSelected
+  - Card events: logCardsDealt, logCardsPlayed, logCardsRefilled
+  - Player events: logPlayerConnected, logPlayerDisconnected, logPlayerReconnected
+- Query methods for retrieving events:
+  - getSessionEvents: Filter by event types, player, round, with pagination
+  - getSessionEventCount: Count events for a session
+  - getLatestEvent: Get most recent event
+  - getRoundEvents: Get all events for a specific round
+  - getPlayerEvents: Get all events for a specific player
+- Registered CahGameEventModule in CahModule for dependency injection
+- All linting passes with no errors

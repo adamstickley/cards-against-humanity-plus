@@ -4,6 +4,7 @@ import { CahCardSetController, CahCardSetService } from './cah-card-set';
 import { CahGameSessionModule } from './cah-game-session';
 import { CahGameRoundModule } from './cah-game-round';
 import { CahGameGatewayModule } from './cah-game-gateway';
+import { CahGameEventModule } from './cah-game-event';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CahCardEntity, CahCardSetEntity } from '../../../entities';
 
@@ -13,6 +14,7 @@ import { CahCardEntity, CahCardSetEntity } from '../../../entities';
     CahGameSessionModule,
     CahGameRoundModule,
     CahGameGatewayModule,
+    CahGameEventModule,
   ],
   controllers: [CahCardController, CahCardSetController],
   providers: [CahCardService, CahCardSetService],
