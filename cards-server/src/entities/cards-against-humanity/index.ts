@@ -8,3 +8,4 @@ export * from './cah.game.round.entity';
 export * from './cah.round.submission.entity';
 export * from './cah.submission.card.entity';
 export * from './cah.session.custom.card.entity';
+export * from './cah.game.event.entity';

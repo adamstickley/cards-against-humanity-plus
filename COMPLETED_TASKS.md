@@ -526,3 +526,26 @@
   - Build user settings page UI
   - Implement default game settings preferences
   - Add preferred display name for games
+
+[Task] Design event types and schema 📋 Billy Claude - COMPLETE
+- Created CahGameEventType type with categorized event prefixes:
+  - Session events: SESSION_CREATED, SESSION_PLAYER_JOINED, SESSION_PLAYER_LEFT, SESSION_GAME_STARTED, SESSION_GAME_ENDED
+  - Round events: ROUND_STARTED, ROUND_CARDS_SUBMITTED, ROUND_JUDGING_STARTED, ROUND_WINNER_SELECTED
+  - Card events: CARDS_DEALT, CARDS_PLAYED, CARDS_REFILLED
+  - Player events: PLAYER_CONNECTED, PLAYER_DISCONNECTED, PLAYER_RECONNECTED
+- Created type-safe event data interfaces for each event type:
+  - ISessionCreatedEventData, IPlayerJoinedEventData, IPlayerLeftEventData
+  - IGameStartedEventData, IGameEndedEventData
+  - IRoundStartedEventData, ICardsSubmittedEventData, IJudgingStartedEventData, IWinnerSelectedEventData
+  - ICardsDealtEventData, ICardsPlayedEventData, ICardsRefilledEventData
+  - IPlayerConnectionEventData
+- Created CahGameEventEntity for database storage:
+  - event_id (auto-increment primary key)
+  - session_id (foreign key to game session with cascade delete)
+  - event_type (varchar 50)
+  - player_id (nullable foreign key to session player)
+  - round_number (nullable integer)
+  - event_data (JSON column for flexible event payloads)
+  - created_at (timestamp)
+  - Indexes on session_id+created_at and event_type for efficient querying
+- All linting passes with no errors
