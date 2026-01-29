@@ -6,3 +6,4 @@ export * from './Scoreboard';
 export * from './RoundStatus';
 export * from './RoundWinner';
 export * from './GameOverView';
+export * from './GameHistory';

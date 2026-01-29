@@ -16,6 +16,7 @@ import {
   useCahCurrentRound,
   useCahPlayerHand,
   useCahScoreboard,
+  useCahGameEvents,
 } from '@/features/CardsAgainstHumanity/hooks';
 import {
   PromptCard,
@@ -25,6 +26,7 @@ import {
   RoundStatus,
   RoundWinner,
   GameOverView,
+  GameHistory,
 } from '@/features/CardsAgainstHumanity/CardsAgainstHumanityPlayView/components';
 
 const PLAYER_ID_STORAGE_KEY = 'cah_player_id';
@@ -57,6 +59,7 @@ export default function CahPlayPage() {
   );
   const [scoreboardData, scoreboardMeta, scoreboardMutate] =
     useCahScoreboard(code);
+  const [eventsData] = useCahGameEvents(code, { limit: 50 });
 
   const [selectedCardIds, setSelectedCardIds] = useState<number[]>([]);
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<
@@ -265,6 +268,12 @@ export default function CahPlayPage() {
               judgePlayerId={round.judge.playerId}
               scoreToWin={scoreToWin}
             />
+            {eventsData?.events && eventsData.events.length > 0 && (
+              <GameHistory
+                events={eventsData.events}
+                currentPlayerId={currentPlayerId ?? undefined}
+              />
+            )}
           </Flex>
         </Box>
 

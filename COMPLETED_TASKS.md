@@ -634,3 +634,33 @@
   - Added CahGameEventController to controllers
   - Added CahGameSessionEntity to TypeORM imports for session lookup
 - All linting passes with no errors
+
+[Task] Build game history UI component 🖥️ Billy Claude - COMPLETE
+- Created client-side types for game events (ICahGameEvent.ts):
+  - CahGameEventType: Union type of all event types matching server
+  - Event data interfaces for all event types (ISessionCreatedEventData, IRoundStartedEventData, etc.)
+  - ICahGameEvent: Single event response with eventId, eventType, playerId, roundNumber, eventData, createdAt
+  - ICahEventHistory: Event list response (sessionCode, totalEvents, events[])
+  - ICahEventSummary: Summary response (sessionCode, totalEvents, eventCounts, firstEvent, lastEvent)
+- Extended CahGameApi with event history methods:
+  - getEvents(code, params): Fetch events with optional filters (eventTypes, playerId, roundNumber, limit, offset)
+  - getEventsSummary(code): Get event summary with counts
+  - getRoundEvents(code, roundNumber): Get events for a specific round
+  - URL builder methods for SWR cache keys
+- Created useCahGameEvents hook (useCahGameEvents.ts):
+  - useCahGameEvents: Fetch events with optional params and 5-second polling
+  - useCahGameEventsSummary: Fetch event summary with 5-second polling
+  - useCahRoundEvents: Fetch round-specific events
+- Created GameHistory component (GameHistory.tsx):
+  - Displays filtered game events in a scrollable list
+  - Shows relevant events: game start/end, player join/leave, round start, submissions, winners
+  - Visual indicators with icons for different event types
+  - Highlights important events (winner selection, game start/end) with amber background
+  - Shows current player as "(You)" in event messages
+  - Timestamp display for each event
+  - Responsive max-height with scroll area
+- Integrated into play page (/cah/play/[code]/page.tsx):
+  - Added useCahGameEvents hook call with limit of 50 events
+  - GameHistory component displayed in left sidebar below Scoreboard
+  - Only renders when events are available
+- All linting passes with no errors
