@@ -8,7 +8,7 @@ Subtasks:
 - [Task] Design event types and schema 📋 Billy Claude - COMPLETE
 - [Task] Create game event entity for database storage 💾 Billy Claude - COMPLETE
 - [Task] Create event logging service on server 🔧 Billy Claude - COMPLETE
-- [Task] Log session events (create, join, leave, start, end) 🎮
+- [Task] Log session events (create, join, leave, start, end) 🎮 Billy Claude - COMPLETE
 - [Task] Log round events (start, submit, judge, winner) 🔄
 - [Task] Log card events (dealt, played, discarded) 🃏
 - [Task] Add API endpoints to query game event history 📡

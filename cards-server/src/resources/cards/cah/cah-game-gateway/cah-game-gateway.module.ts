@@ -9,6 +9,7 @@ import {
 import { CahGameGateway } from './cah-game.gateway';
 import { PlayerPresenceService } from './player-presence.service';
 import { GameStateSyncService } from './game-state-sync.service';
+import { CahGameEventModule } from '../cah-game-event';
 
 @Global()
 @Module({
@@ -19,6 +20,7 @@ import { GameStateSyncService } from './game-state-sync.service';
       CahGameRoundEntity,
       CahPlayerHandEntity,
     ]),
+    CahGameEventModule,
   ],
   providers: [CahGameGateway, PlayerPresenceService, GameStateSyncService],
   exports: [CahGameGateway, PlayerPresenceService, GameStateSyncService],

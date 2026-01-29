@@ -17,6 +17,7 @@ import {
   CahSessionCustomCardEntity,
 } from '../../../../entities';
 import { StartGameDto, SubmitCardsDto, SelectWinnerDto } from './dto';
+import { CahGameEventService } from '../cah-game-event';
 
 interface UnifiedCard {
   id: number;
@@ -45,6 +46,7 @@ export class CahGameRoundService {
     @InjectRepository(CahSessionCustomCardEntity)
     private readonly customCardRepo: Repository<CahSessionCustomCardEntity>,
     private readonly dataSource: DataSource,
+    private readonly eventService: CahGameEventService,
   ) {}
 
   async startGame(
@@ -373,6 +375,27 @@ export class CahGameRoundService {
       }
 
       await queryRunner.commitTransaction();
+
+      // Log game ended event if the game is over
+      if (gameOver && winner) {
+        const finalScores = session.players
+          .map((p) => ({
+            playerId: p.session_player_id,
+            nickname: p.nickname,
+            score:
+              p.session_player_id === winner.session_player_id
+                ? winner.score
+                : p.score,
+          }))
+          .sort((a, b) => b.score - a.score);
+
+        await this.eventService.logGameEnded(session.session_id, {
+          winnerId: winner.session_player_id,
+          winnerNickname: winner.nickname,
+          winnerScore: winner.score,
+          finalScores,
+        });
+      }
 
       return {
         round,

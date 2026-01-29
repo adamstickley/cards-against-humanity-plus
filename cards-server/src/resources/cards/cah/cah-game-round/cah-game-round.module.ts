@@ -12,6 +12,7 @@ import {
 } from '../../../../entities';
 import { CahGameRoundController } from './cah-game-round.controller';
 import { CahGameRoundService } from './cah-game-round.service';
+import { CahGameEventModule } from '../cah-game-event';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { CahGameRoundService } from './cah-game-round.service';
       CahCardEntity,
       CahSessionCustomCardEntity,
     ]),
+    CahGameEventModule,
   ],
   controllers: [CahGameRoundController],
   providers: [CahGameRoundService],

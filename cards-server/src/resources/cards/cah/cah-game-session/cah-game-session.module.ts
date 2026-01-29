@@ -13,6 +13,7 @@ import {
 import { CahGameSessionController } from './cah-game-session.controller';
 import { CahGameSessionService } from './cah-game-session.service';
 import { CahCardDealerService } from './cah-card-dealer.service';
+import { CahGameEventModule } from '../cah-game-event';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CahCardDealerService } from './cah-card-dealer.service';
       CahGameRoundEntity,
       CahSessionCustomCardEntity,
     ]),
+    CahGameEventModule,
   ],
   controllers: [CahGameSessionController],
   providers: [CahGameSessionService, CahCardDealerService],

@@ -571,3 +571,20 @@
   - getPlayerEvents: Get all events for a specific player
 - Registered CahGameEventModule in CahModule for dependency injection
 - All linting passes with no errors
+
+[Task] Log session events (create, join, leave, start, end) 🎮 Billy Claude - COMPLETE
+- Integrated CahGameEventService into session and game flow:
+- CahGameSessionService (cah-game-session.service.ts):
+  - createSession: Logs SESSION_CREATED with host info, settings, and card pack IDs
+  - joinSession: Logs SESSION_PLAYER_JOINED with player info and current player count
+  - startSession: Logs SESSION_GAME_STARTED with player count and IDs
+- CahGameRoundService (cah-game-round.service.ts):
+  - selectWinner: Logs SESSION_GAME_ENDED when game ends with winner and final scores
+- CahGameGateway (cah-game.gateway.ts):
+  - handleDisconnect: Logs SESSION_PLAYER_LEFT with reason 'disconnected'
+  - handleLeaveSession: Logs SESSION_PLAYER_LEFT with reason 'left'
+- Module updates:
+  - CahGameSessionModule imports CahGameEventModule
+  - CahGameRoundModule imports CahGameEventModule
+  - CahGameGatewayModule imports CahGameEventModule
+- All linting passes with no errors

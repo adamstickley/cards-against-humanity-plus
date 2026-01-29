@@ -10,6 +10,8 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import {
   ServerToClientEvents,
   ClientToServerEvents,
@@ -20,6 +22,11 @@ import {
 } from './game-events.types';
 import { PlayerPresenceService } from './player-presence.service';
 import { GameStateSyncService } from './game-state-sync.service';
+import { CahGameEventService } from '../cah-game-event';
+import {
+  CahSessionPlayerEntity,
+  CahGameSessionEntity,
+} from '../../../../entities';
 
 interface SocketData {
   playerId?: number;
@@ -47,6 +54,11 @@ export class CahGameGateway
   constructor(
     private readonly presenceService: PlayerPresenceService,
     private readonly gameStateSyncService: GameStateSyncService,
+    private readonly eventService: CahGameEventService,
+    @InjectRepository(CahSessionPlayerEntity)
+    private readonly playerRepo: Repository<CahSessionPlayerEntity>,
+    @InjectRepository(CahGameSessionEntity)
+    private readonly sessionRepo: Repository<CahGameSessionEntity>,
   ) {}
 
   afterInit() {
@@ -80,6 +92,27 @@ export class CahGameGateway
       const connectedPlayers =
         this.presenceService.getConnectedPlayersInSession(sessionCode);
       this.emitPresenceUpdate(sessionCode, connectedPlayers);
+
+      // Log player left event
+      try {
+        const player = await this.playerRepo.findOne({
+          where: { session_player_id: playerId },
+        });
+        const session = await this.sessionRepo.findOne({
+          where: { code: sessionCode.toUpperCase() },
+        });
+
+        if (player && session) {
+          await this.eventService.logPlayerLeft(session.session_id, {
+            playerId,
+            nickname: player.nickname,
+            playerCount: connectedPlayers.length,
+            reason: 'disconnected',
+          });
+        }
+      } catch (error) {
+        this.logger.error('Failed to log player left event', error);
+      }
     }
   }
 
@@ -134,6 +167,27 @@ export class CahGameGateway
       const connectedPlayers =
         this.presenceService.getConnectedPlayersInSession(sessionCode);
       this.emitPresenceUpdate(sessionCode, connectedPlayers);
+
+      // Log player left event
+      try {
+        const player = await this.playerRepo.findOne({
+          where: { session_player_id: playerId },
+        });
+        const session = await this.sessionRepo.findOne({
+          where: { code: sessionCode.toUpperCase() },
+        });
+
+        if (player && session) {
+          await this.eventService.logPlayerLeft(session.session_id, {
+            playerId,
+            nickname: player.nickname,
+            playerCount: connectedPlayers.length,
+            reason: 'left',
+          });
+        }
+      } catch (error) {
+        this.logger.error('Failed to log player left event', error);
+      }
     }
 
     this.logger.log(`Client ${client.id} left session ${data.sessionCode}`);

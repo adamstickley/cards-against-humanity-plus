@@ -23,6 +23,7 @@ import {
   CreateCustomCardDto,
   CustomCardResponseDto,
 } from './dto';
+import { CahGameEventService } from '../cah-game-event';
 
 @Injectable()
 export class CahGameSessionService {
@@ -40,6 +41,7 @@ export class CahGameSessionService {
     @InjectRepository(CahSessionCustomCardEntity)
     private readonly customCardRepo: Repository<CahSessionCustomCardEntity>,
     private readonly dataSource: DataSource,
+    private readonly eventService: CahGameEventService,
   ) {}
 
   async createSession(dto: CreateSessionDto): Promise<{
@@ -112,6 +114,16 @@ export class CahGameSessionService {
 
       await queryRunner.commitTransaction();
 
+      // Log session created event
+      await this.eventService.logSessionCreated(savedSession.session_id, {
+        hostPlayerId: savedPlayer.session_player_id,
+        hostNickname: savedPlayer.nickname,
+        scoreToWin: savedSession.score_to_win,
+        maxPlayers: savedSession.max_players,
+        cardsPerHand: savedSession.cards_per_hand,
+        cardPackIds: dto.cardSetIds,
+      });
+
       return { session: savedSession, player: savedPlayer };
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -164,6 +176,15 @@ export class CahGameSessionService {
     });
 
     const savedPlayer = await this.playerRepo.save(player);
+
+    // Log player joined event
+    const playerCount =
+      session.players.filter((p) => p.is_connected).length + 1;
+    await this.eventService.logPlayerJoined(session.session_id, {
+      playerId: savedPlayer.session_player_id,
+      nickname: savedPlayer.nickname,
+      playerCount,
+    });
 
     return { session, player: savedPlayer };
   }
@@ -218,7 +239,15 @@ export class CahGameSessionService {
     session.status = 'in_progress';
     session.current_round = 1;
 
-    return this.sessionRepo.save(session);
+    const savedSession = await this.sessionRepo.save(session);
+
+    // Log game started event
+    await this.eventService.logGameStarted(session.session_id, {
+      playerCount: connectedPlayers.length,
+      playerIds: connectedPlayers.map((p) => p.session_player_id),
+    });
+
+    return savedSession;
   }
 
   async getPlayerById(playerId: number): Promise<CahSessionPlayerEntity> {
