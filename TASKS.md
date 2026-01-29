@@ -26,7 +26,7 @@ Subtasks:
 
 Subtasks:
 - [Task] Allow selecting multiple card packs for a game session 🎴 James Claude - COMPLETE
-- [Task] Save deck preferences per session
+- [Task] Save deck preferences per session 💾 James Claude - COMPLETE
 
 [Main Feature] Custom cards
 

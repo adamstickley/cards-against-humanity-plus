@@ -281,3 +281,25 @@
 - Form submission correctly combines base pack + selected expansion packs
 - All linting passes with no errors
 - All 99 server tests pass
+
+[Task] Save deck preferences per session 💾 James Claude - COMPLETE
+- Created usePackPreferences hook for browser-side preferences caching:
+  - Stores preferences in localStorage with key 'cah_deck_preferences'
+  - Saves: pack mode (suggested/custom), base pack ID, selected pack IDs, game settings
+  - Handles SSR safely (checks for window before accessing localStorage)
+  - Validates saved pack IDs against available card sets on load
+  - Provides savePreferences, updatePreferences, and clearPreferences functions
+- Updated CardsAgainstHumanitySetupForm component:
+  - Accepts savedPreferences and onSavePreferences props
+  - Uses saved preferences as default values for form fields
+  - Validates that saved pack IDs still exist in available card sets
+  - Saves preferences to localStorage when form is submitted
+- Updated setup page to use the usePackPreferences hook:
+  - Waits for preferences to load before rendering form
+  - Passes preferences and save function to form component
+- User experience improvement:
+  - When a user creates a game, their pack selections are remembered
+  - Next time they visit the setup page, their previous selections are pre-filled
+  - Game settings (max players, score to win, round timer) are also remembered
+- All linting passes with no errors
+- All 99 server tests pass

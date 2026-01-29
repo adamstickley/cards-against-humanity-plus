@@ -17,7 +17,10 @@ import { assertDefined } from '@/utils';
 import { combinedServiceHookMeta, useApiContext } from '@/api';
 import { CARD_AGAINST_HUMANITY } from '@/consts';
 import { Page } from '@/components';
-import { useCahCardSets } from '@/features/CardsAgainstHumanity/hooks';
+import {
+  useCahCardSets,
+  usePackPreferences,
+} from '@/features/CardsAgainstHumanity/hooks';
 import { CardsAgainstHumanitySetupForm } from '@/features/CardsAgainstHumanity/CardsAgainstHumanitySetupView/components/CardsAgainstHumanitySetupForm/CardsAgainstHumanitySetupForm';
 import { ICardsAgainstHumanitySetupFormValues } from '@/features/CardsAgainstHumanity/CardsAgainstHumanitySetupView/components';
 
@@ -36,6 +39,7 @@ export default function CahSetupPage() {
   const [game, gameMeta] = useGame(CARD_AGAINST_HUMANITY);
   const [cardSets, cardSetMeta] = useCahCardSets();
   const meta = combinedServiceHookMeta([gameMeta, cardSetMeta]);
+  const { preferences, isLoaded, savePreferences } = usePackPreferences();
 
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
@@ -172,11 +176,15 @@ export default function CahSetupPage() {
             <Heading size="5" mb="4">
               Create a New Game
             </Heading>
-            <CardsAgainstHumanitySetupForm
-              onSubmit={submitHandler}
-              cardSets={cardSets}
-              isSubmitting={isCreating}
-            />
+            {isLoaded && (
+              <CardsAgainstHumanitySetupForm
+                onSubmit={submitHandler}
+                cardSets={cardSets}
+                isSubmitting={isCreating}
+                savedPreferences={preferences}
+                onSavePreferences={savePreferences}
+              />
+            )}
           </Page>
         );
       }}

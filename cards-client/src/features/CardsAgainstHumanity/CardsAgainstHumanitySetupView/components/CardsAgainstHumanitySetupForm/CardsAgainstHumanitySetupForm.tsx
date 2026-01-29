@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Box, Button, Grid, Heading, Text, TextField } from '@radix-ui/themes';
 import { useForm } from 'react-hook-form';
 import { Hide } from '../../../../../components';
 import { CustomPackSelector } from '../CustomPackSelector';
 import { SuggestedPacksSelector } from '../SuggestedPacksSelector';
 import { ICahCardSet } from '../../../types';
+import { IDeckPreferences } from '../../../hooks/usePackPreferences';
 import {
   GameSettings,
   PackConfiguration,
@@ -16,33 +17,82 @@ export interface ICardsAgainstHumanitySetupFormProps {
   onSubmit: (values: ICardsAgainstHumanitySetupFormValues) => void;
   cardSets: ICahCardSet[];
   isSubmitting?: boolean;
+  savedPreferences?: IDeckPreferences;
+  onSavePreferences?: (preferences: IDeckPreferences) => void;
 }
 
 export const CardsAgainstHumanitySetupForm: React.FC<
   ICardsAgainstHumanitySetupFormProps
-> = ({ onSubmit, cardSets, isSubmitting }) => {
+> = ({
+  onSubmit,
+  cardSets,
+  isSubmitting,
+  savedPreferences,
+  onSavePreferences,
+}) => {
+  const defaultBasePack = useMemo(() => {
+    if (savedPreferences?.basePack) {
+      const exists = cardSets.some(
+        (cs) => cs.card_set_id === savedPreferences.basePack,
+      );
+      if (exists) {
+        return savedPreferences.basePack;
+      }
+    }
+    return cardSets.find(
+      (cardSet) => cardSet.is_base_set && cardSet.recommended,
+    )?.card_set_id;
+  }, [cardSets, savedPreferences?.basePack]);
+
+  const defaultSelectedPacks = useMemo(() => {
+    if (savedPreferences?.selectedPacks?.length) {
+      const validPacks = savedPreferences.selectedPacks.filter((packId) =>
+        cardSets.some((cs) => cs.card_set_id === packId),
+      );
+      if (validPacks.length > 0) {
+        return validPacks;
+      }
+    }
+    return [];
+  }, [cardSets, savedPreferences?.selectedPacks]);
+
   const form = useForm<ICardsAgainstHumanitySetupFormValues>({
     defaultValues: {
       nickname: '',
-      packMode: 'suggested',
+      packMode: savedPreferences?.packMode ?? 'suggested',
       gameMode: 'score',
-      maxPlayers: 10,
-      ruleScore: 8,
+      maxPlayers: savedPreferences?.gameSettings?.maxPlayers ?? 10,
+      ruleScore: savedPreferences?.gameSettings?.scoreToWin ?? 8,
       ruleWhiteCards: 100,
       ruleRounds: 10,
       ruleTime: 30,
       duplicatePolicy: 'remove',
       allowSwappingCards: 'limited',
       swapCardLimit: 2,
-      roundTimer: 0,
+      roundTimer: savedPreferences?.gameSettings?.roundTimer ?? 0,
       'packSettings.sortBy': 'popularity',
-      'packSettings.basePack': cardSets.find(
-        (cardSet) => cardSet.is_base_set && cardSet.recommended,
-      )?.card_set_id!,
-      'packSettings.selectedPacks': [],
+      'packSettings.basePack': defaultBasePack!,
+      'packSettings.selectedPacks': defaultSelectedPacks,
       'packSettings.filter': '',
     },
   });
+
+  const handleSubmit = useCallback(
+    (values: ICardsAgainstHumanitySetupFormValues) => {
+      onSavePreferences?.({
+        packMode: values.packMode,
+        basePack: values['packSettings.basePack'],
+        selectedPacks: values['packSettings.selectedPacks'],
+        gameSettings: {
+          maxPlayers: values.maxPlayers,
+          scoreToWin: values.ruleScore,
+          roundTimer: values.roundTimer,
+        },
+      });
+      onSubmit(values);
+    },
+    [onSubmit, onSavePreferences],
+  );
 
   const formValues = form.watch();
   const nickname = form.watch('nickname');
@@ -86,7 +136,7 @@ export const CardsAgainstHumanitySetupForm: React.FC<
           </Box>
         </Hide>
       </Grid>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form onSubmit={form.handleSubmit(handleSubmit)}>
         <GameSettings form={form} />
         <PackConfiguration form={form} />
         <Box mb="6" />
