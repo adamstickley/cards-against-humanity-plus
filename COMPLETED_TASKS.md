@@ -439,3 +439,28 @@
   - Created useUserSync hook that automatically syncs user data when signed in
   - Added UserSyncProvider to Providers component for automatic sync on sign-in
 - All linting passes with no errors
+
+[Task] Create user preferences database schema 💾 Billy Claude - COMPLETE
+- Server-side:
+  - Created UserPreferencesEntity in src/entities/common/user-preferences.entity.ts:
+    - clerk_user_id (primary key, foreign key to users)
+    - preferred_nickname (varchar 50, nullable)
+    - default_score_to_win (integer, default: 8)
+    - default_max_players (integer, default: 10)
+    - default_cards_per_hand (integer, default: 10)
+    - default_round_timer_seconds (integer, nullable)
+    - created_at and updated_at timestamps
+  - Created UpdatePreferencesDto with validation:
+    - preferredNickname: optional string, max 50 chars
+    - defaultScoreToWin: optional int, 1-20
+    - defaultMaxPlayers: optional int, 3-20
+    - defaultCardsPerHand: optional int, 5-15
+    - defaultRoundTimerSeconds: optional int, 30-300
+  - Added endpoints to UsersController:
+    - GET /users/:clerkUserId/preferences - Get user preferences (returns defaults if not set)
+    - PUT /users/:clerkUserId/preferences - Update user preferences (creates if not exists)
+  - Updated UsersModule with UserPreferencesEntity
+- Client-side:
+  - Added IUserPreferences and IUpdatePreferencesRequest interfaces
+  - Added getPreferences() and updatePreferences() methods to UsersApi
+- All linting passes with no errors

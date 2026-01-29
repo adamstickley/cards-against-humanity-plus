@@ -16,6 +16,24 @@ export interface ISyncUserRequest {
   avatarUrl?: string;
 }
 
+export interface IUserPreferences {
+  clerkUserId: string;
+  preferredNickname: string | null;
+  defaultScoreToWin: number;
+  defaultMaxPlayers: number;
+  defaultCardsPerHand: number;
+  defaultRoundTimerSeconds: number | null;
+  updatedAt?: string;
+}
+
+export interface IUpdatePreferencesRequest {
+  preferredNickname?: string;
+  defaultScoreToWin?: number;
+  defaultMaxPlayers?: number;
+  defaultCardsPerHand?: number;
+  defaultRoundTimerSeconds?: number;
+}
+
 export class UsersApi {
   private client: IApiClient;
   private baseUrl = '/users';
@@ -57,6 +75,30 @@ export class UsersApi {
       'PATCH',
       `${this.baseUrl}/${clerkUserId}/display-name`,
       { displayName },
+    );
+    return data;
+  }
+
+  public urlForPreferences(clerkUserId: string): string {
+    return `${this.baseUrl}/${clerkUserId}/preferences`;
+  }
+
+  public async getPreferences(clerkUserId: string): Promise<IUserPreferences> {
+    const { data } = await this.client.request<IUserPreferences>(
+      'GET',
+      this.urlForPreferences(clerkUserId),
+    );
+    return data;
+  }
+
+  public async updatePreferences(
+    clerkUserId: string,
+    request: IUpdatePreferencesRequest,
+  ): Promise<IUserPreferences> {
+    const { data } = await this.client.request<IUserPreferences>(
+      'PUT',
+      this.urlForPreferences(clerkUserId),
+      request,
     );
     return data;
   }

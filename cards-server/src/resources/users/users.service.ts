@@ -1,14 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UserEntity } from '../../entities';
-import { SyncUserDto } from './dto';
+import { UserEntity, UserPreferencesEntity } from '../../entities';
+import { SyncUserDto, UpdatePreferencesDto } from './dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(UserPreferencesEntity)
+    private readonly preferencesRepository: Repository<UserPreferencesEntity>,
   ) {}
 
   async syncUser(dto: SyncUserDto): Promise<UserEntity> {
@@ -50,5 +52,46 @@ export class UsersService {
 
     user.display_name = displayName;
     return this.userRepository.save(user);
+  }
+
+  async getPreferences(
+    clerkUserId: string,
+  ): Promise<UserPreferencesEntity | null> {
+    return this.preferencesRepository.findOne({
+      where: { clerk_user_id: clerkUserId },
+    });
+  }
+
+  async updatePreferences(
+    clerkUserId: string,
+    dto: UpdatePreferencesDto,
+  ): Promise<UserPreferencesEntity> {
+    let preferences = await this.preferencesRepository.findOne({
+      where: { clerk_user_id: clerkUserId },
+    });
+
+    if (!preferences) {
+      preferences = this.preferencesRepository.create({
+        clerk_user_id: clerkUserId,
+      });
+    }
+
+    if (dto.preferredNickname !== undefined) {
+      preferences.preferred_nickname = dto.preferredNickname;
+    }
+    if (dto.defaultScoreToWin !== undefined) {
+      preferences.default_score_to_win = dto.defaultScoreToWin;
+    }
+    if (dto.defaultMaxPlayers !== undefined) {
+      preferences.default_max_players = dto.defaultMaxPlayers;
+    }
+    if (dto.defaultCardsPerHand !== undefined) {
+      preferences.default_cards_per_hand = dto.defaultCardsPerHand;
+    }
+    if (dto.defaultRoundTimerSeconds !== undefined) {
+      preferences.default_round_timer_seconds = dto.defaultRoundTimerSeconds;
+    }
+
+    return this.preferencesRepository.save(preferences);
   }
 }
