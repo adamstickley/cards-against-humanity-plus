@@ -11,5 +11,5 @@ Subtasks:
 - [Task] Log session events (create, join, leave, start, end) 🎮 Billy Claude - COMPLETE
 - [Task] Log round events (start, submit, judge, winner) 🔄 Billy Claude - COMPLETE
 - [Task] Log card events (dealt, played, discarded) 🃏 Billy Claude - COMPLETE
-- [Task] Add API endpoints to query game event history 📡
+- [Task] Add API endpoints to query game event history 📡 Billy Claude - COMPLETE
 - [Task] Build game history UI component 🖥️

@@ -617,3 +617,20 @@
   - Discarded: No discard mechanic in current game implementation
 - Injected CahGameEventService into CahCardDealerService
 - All linting passes with no errors
+
+[Task] Add API endpoints to query game event history 📡 Billy Claude - COMPLETE
+- Created CahGameEventController with REST API endpoints:
+  - GET /session/:code/events - Get all events with optional filters (eventTypes, playerId, roundNumber, limit, offset)
+  - GET /session/:code/events/summary - Get event summary with counts by type and timestamps
+  - GET /session/:code/events/round/:roundNumber - Get events for a specific round
+  - GET /session/:code/events/player/:playerId - Get events for a specific player
+  - GET /session/:code/events/latest - Get the most recent event
+- Created DTOs:
+  - GetEventsQueryDto: Query parameters with validation (eventTypes, playerId, roundNumber, limit, offset)
+  - GameEventResponseDto: Single event response (eventId, eventType, playerId, roundNumber, eventData, createdAt)
+  - EventHistoryResponseDto: List response (sessionCode, totalEvents, events[])
+  - EventSummaryResponseDto: Summary response (sessionCode, totalEvents, eventCounts, firstEvent, lastEvent)
+- Updated CahGameEventModule:
+  - Added CahGameEventController to controllers
+  - Added CahGameSessionEntity to TypeORM imports for session lookup
+- All linting passes with no errors
