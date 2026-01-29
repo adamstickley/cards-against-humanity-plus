@@ -15,6 +15,7 @@ import {
   CahSubmissionCardEntity,
   CahPlayerHandEntity,
   CahCardEntity,
+  CahSessionCustomCardEntity,
 } from '../../../../entities';
 
 describe('CahGameRoundService', () => {
@@ -75,6 +76,11 @@ describe('CahGameRoundService', () => {
     createQueryBuilder: jest.fn(),
   };
 
+  const mockCustomCardRepo = {
+    find: jest.fn(),
+    createQueryBuilder: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -106,6 +112,10 @@ describe('CahGameRoundService', () => {
         {
           provide: getRepositoryToken(CahCardEntity),
           useValue: mockCardRepo,
+        },
+        {
+          provide: getRepositoryToken(CahSessionCustomCardEntity),
+          useValue: mockCustomCardRepo,
         },
         {
           provide: DataSource,

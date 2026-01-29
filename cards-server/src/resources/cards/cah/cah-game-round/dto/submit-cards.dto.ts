@@ -1,4 +1,10 @@
-import { IsArray, IsInt, IsPositive, ArrayMinSize } from 'class-validator';
+import {
+  IsArray,
+  IsInt,
+  IsOptional,
+  IsPositive,
+  ArrayMinSize,
+} from 'class-validator';
 
 export class SubmitCardsDto {
   @IsInt()
@@ -9,4 +15,9 @@ export class SubmitCardsDto {
   @ArrayMinSize(1)
   @IsInt({ each: true })
   cardIds: number[];
+
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  customCardIds?: number[];
 }

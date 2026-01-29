@@ -63,6 +63,15 @@ export default function CahSetupPage() {
           ...values['packSettings.selectedPacks'],
         ].filter(Boolean);
 
+        const customCardsPayload =
+          customCards.length > 0
+            ? customCards.map((card) => ({
+                text: card.text,
+                cardType: card.cardType,
+                pick: card.cardType === 'prompt' ? card.pick : undefined,
+              }))
+            : undefined;
+
         const response = await api.CahSession.createSession({
           nickname: values.nickname,
           cardSetIds,
@@ -71,6 +80,7 @@ export default function CahSetupPage() {
           cardsPerHand: 10,
           roundTimerSeconds:
             values.roundTimer > 0 ? values.roundTimer : undefined,
+          customCards: customCardsPayload,
         });
 
         storePlayerSession(response.code, response.playerId);
@@ -81,7 +91,7 @@ export default function CahSetupPage() {
         setIsCreating(false);
       }
     },
-    [api, router],
+    [api, router, customCards],
   );
 
   const handleJoinGame = useCallback(async () => {

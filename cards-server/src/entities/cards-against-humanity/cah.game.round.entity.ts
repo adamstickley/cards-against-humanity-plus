@@ -11,6 +11,7 @@ import { CahGameRoundStatus } from '../../types';
 import { CahGameSessionEntity } from './cah.game.session.entity';
 import { CahSessionPlayerEntity } from './cah.session.player.entity';
 import { CahCardEntity } from './cah.card.entity';
+import { CahSessionCustomCardEntity } from './cah.session.custom.card.entity';
 import { CahRoundSubmissionEntity } from './cah.round.submission.entity';
 
 @Entity({ name: 'cah_game_rounds' })
@@ -28,12 +29,19 @@ export class CahGameRoundEntity {
   @Column({ type: 'integer' })
   round_number: number;
 
-  @ManyToOne(() => CahCardEntity)
+  @ManyToOne(() => CahCardEntity, { nullable: true })
   @JoinColumn({ name: 'prompt_card_id' })
-  prompt_card: CahCardEntity;
+  prompt_card: CahCardEntity | null;
 
-  @Column({ type: 'integer' })
-  prompt_card_id: number;
+  @Column({ type: 'integer', nullable: true })
+  prompt_card_id: number | null;
+
+  @ManyToOne(() => CahSessionCustomCardEntity, { nullable: true })
+  @JoinColumn({ name: 'custom_prompt_card_id' })
+  custom_prompt_card: CahSessionCustomCardEntity | null;
+
+  @Column({ type: 'integer', nullable: true })
+  custom_prompt_card_id: number | null;
 
   @ManyToOne(() => CahSessionPlayerEntity)
   @JoinColumn({ name: 'judge_player_id' })

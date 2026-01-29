@@ -14,8 +14,16 @@ import {
   CahSubmissionCardEntity,
   CahPlayerHandEntity,
   CahCardEntity,
+  CahSessionCustomCardEntity,
 } from '../../../../entities';
 import { StartGameDto, SubmitCardsDto, SelectWinnerDto } from './dto';
+
+interface UnifiedCard {
+  id: number;
+  text: string;
+  pick: number | null;
+  isCustom: boolean;
+}
 
 @Injectable()
 export class CahGameRoundService {
@@ -34,6 +42,8 @@ export class CahGameRoundService {
     private readonly handRepo: Repository<CahPlayerHandEntity>,
     @InjectRepository(CahCardEntity)
     private readonly cardRepo: Repository<CahCardEntity>,
+    @InjectRepository(CahSessionCustomCardEntity)
+    private readonly customCardRepo: Repository<CahSessionCustomCardEntity>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -119,7 +129,7 @@ export class CahGameRoundService {
 
     const round = await this.roundRepo.findOne({
       where: { round_id: roundId, session_id: session.session_id },
-      relations: ['prompt_card', 'submissions'],
+      relations: ['prompt_card', 'custom_prompt_card', 'submissions'],
     });
 
     if (!round) {
@@ -148,7 +158,8 @@ export class CahGameRoundService {
       throw new BadRequestException('You have already submitted cards');
     }
 
-    const requiredCards = round.prompt_card.pick || 1;
+    const requiredCards =
+      round.prompt_card?.pick || round.custom_prompt_card?.pick || 1;
     if (dto.cardIds.length !== requiredCards) {
       throw new BadRequestException(
         `This prompt requires exactly ${requiredCards} card(s)`,
@@ -159,11 +170,26 @@ export class CahGameRoundService {
       where: { session_player_id: dto.playerId },
     });
 
-    const handCardIds = playerHand.map((h) => h.card_id);
-    const allCardsInHand = dto.cardIds.every((cardId) =>
-      handCardIds.includes(cardId),
+    const regularCardIds = playerHand
+      .filter((h) => h.card_id !== null)
+      .map((h) => h.card_id!);
+    const customCardIds = playerHand
+      .filter((h) => h.custom_card_id !== null)
+      .map((h) => h.custom_card_id!);
+
+    const regularSubmittedIds = dto.cardIds.filter(
+      (id) => !dto.customCardIds?.includes(id),
     );
-    if (!allCardsInHand) {
+    const customSubmittedIds = dto.customCardIds || [];
+
+    const allRegularInHand = regularSubmittedIds.every((cardId) =>
+      regularCardIds.includes(cardId),
+    );
+    const allCustomInHand = customSubmittedIds.every((cardId) =>
+      customCardIds.includes(cardId),
+    );
+
+    if (!allRegularInHand || !allCustomInHand) {
       throw new BadRequestException('One or more cards are not in your hand');
     }
 
@@ -178,19 +204,50 @@ export class CahGameRoundService {
       });
       const savedSubmission = await queryRunner.manager.save(submission);
 
-      const submissionCards = dto.cardIds.map((cardId, index) =>
-        queryRunner.manager.create(CahSubmissionCardEntity, {
-          submission_id: savedSubmission.submission_id,
-          card_id: cardId,
-          card_order: index,
-        }),
-      );
+      const submissionCards: CahSubmissionCardEntity[] = [];
+      let cardOrder = 0;
+
+      for (const cardId of regularSubmittedIds) {
+        const submissionCard = queryRunner.manager.create(
+          CahSubmissionCardEntity,
+          {
+            submission_id: savedSubmission.submission_id,
+            card_id: cardId,
+            custom_card_id: null,
+            card_order: cardOrder++,
+          },
+        );
+        submissionCards.push(submissionCard);
+      }
+
+      for (const customCardId of customSubmittedIds) {
+        const submissionCard = queryRunner.manager.create(
+          CahSubmissionCardEntity,
+          {
+            submission_id: savedSubmission.submission_id,
+            card_id: null,
+            custom_card_id: customCardId,
+            card_order: cardOrder++,
+          },
+        );
+        submissionCards.push(submissionCard);
+      }
+
       await queryRunner.manager.save(submissionCards);
 
-      await queryRunner.manager.delete(CahPlayerHandEntity, {
-        session_player_id: dto.playerId,
-        card_id: In(dto.cardIds),
-      });
+      if (regularSubmittedIds.length > 0) {
+        await queryRunner.manager.delete(CahPlayerHandEntity, {
+          session_player_id: dto.playerId,
+          card_id: In(regularSubmittedIds),
+        });
+      }
+
+      if (customSubmittedIds.length > 0) {
+        await queryRunner.manager.delete(CahPlayerHandEntity, {
+          session_player_id: dto.playerId,
+          custom_card_id: In(customSubmittedIds),
+        });
+      }
 
       const updatedRound = await queryRunner.manager.findOne(
         CahGameRoundEntity,
@@ -351,11 +408,13 @@ export class CahGameRoundService {
       },
       relations: [
         'prompt_card',
+        'custom_prompt_card',
         'judge',
         'submissions',
         'submissions.player',
         'submissions.cards',
         'submissions.cards.card',
+        'submissions.cards.custom_card',
       ],
     });
   }
@@ -382,7 +441,7 @@ export class CahGameRoundService {
 
     return this.handRepo.find({
       where: { session_player_id: playerId },
-      relations: ['card'],
+      relations: ['card', 'custom_card'],
     });
   }
 
@@ -400,21 +459,45 @@ export class CahGameRoundService {
       },
     });
 
-    if (responseCards.length < players.length * session.cards_per_hand) {
+    const customResponseCards = await this.customCardRepo.find({
+      where: {
+        session_id: session.session_id,
+        card_type: 'response',
+      },
+    });
+
+    const allCards: UnifiedCard[] = [
+      ...responseCards.map((c) => ({
+        id: c.card_id,
+        text: c.card_text,
+        pick: null,
+        isCustom: false,
+      })),
+      ...customResponseCards.map((c) => ({
+        id: c.custom_card_id,
+        text: c.card_text,
+        pick: null,
+        isCustom: true,
+      })),
+    ];
+
+    if (allCards.length < players.length * session.cards_per_hand) {
       throw new BadRequestException(
         'Not enough response cards in selected packs',
       );
     }
 
-    const shuffled = this.shuffleArray([...responseCards]);
+    const shuffled = this.shuffleArray([...allCards]);
     let cardIndex = 0;
 
     for (const player of players) {
       const handCards: CahPlayerHandEntity[] = [];
       for (let i = 0; i < session.cards_per_hand; i++) {
+        const card = shuffled[cardIndex];
         const handCard = manager.create(CahPlayerHandEntity, {
           session_player_id: player.session_player_id,
-          card_id: shuffled[cardIndex].card_id,
+          card_id: card.isCustom ? null : card.id,
+          custom_card_id: card.isCustom ? card.id : null,
         });
         handCards.push(handCard);
         cardIndex++;
@@ -430,31 +513,72 @@ export class CahGameRoundService {
   ): Promise<void> {
     const cardSetIds = session.card_packs.map((cp) => cp.card_set_id);
 
-    const usedCardIds = await manager
+    const usedRegularCardIds = await manager
       .createQueryBuilder(CahPlayerHandEntity, 'hand')
       .innerJoin('hand.player', 'player')
       .where('player.session_id = :sessionId', {
         sessionId: session.session_id,
       })
+      .andWhere('hand.card_id IS NOT NULL')
       .select('hand.card_id')
       .getMany();
 
-    const usedIds = usedCardIds.map((h) => h.card_id);
+    const usedCustomCardIds = await manager
+      .createQueryBuilder(CahPlayerHandEntity, 'hand')
+      .innerJoin('hand.player', 'player')
+      .where('player.session_id = :sessionId', {
+        sessionId: session.session_id,
+      })
+      .andWhere('hand.custom_card_id IS NOT NULL')
+      .select('hand.custom_card_id')
+      .getMany();
 
-    const availableCards = await this.cardRepo
+    const usedRegularIds = usedRegularCardIds.map((h) => h.card_id!);
+    const usedCustomIds = usedCustomCardIds.map((h) => h.custom_card_id!);
+
+    const availableRegularCards = await this.cardRepo
       .createQueryBuilder('card')
       .innerJoin('card.card_set', 'cardSet')
       .where('cardSet.card_set_id IN (:...cardSetIds)', { cardSetIds })
       .andWhere('card.card_type = :type', { type: 'response' })
       .andWhere(
-        usedIds.length > 0 ? 'card.card_id NOT IN (:...usedIds)' : '1=1',
-        {
-          usedIds,
-        },
+        usedRegularIds.length > 0
+          ? 'card.card_id NOT IN (:...usedRegularIds)'
+          : '1=1',
+        { usedRegularIds },
       )
       .getMany();
 
-    const shuffled = this.shuffleArray([...availableCards]);
+    const availableCustomCards = await manager
+      .createQueryBuilder(CahSessionCustomCardEntity, 'customCard')
+      .where('customCard.session_id = :sessionId', {
+        sessionId: session.session_id,
+      })
+      .andWhere('customCard.card_type = :type', { type: 'response' })
+      .andWhere(
+        usedCustomIds.length > 0
+          ? 'customCard.custom_card_id NOT IN (:...usedCustomIds)'
+          : '1=1',
+        { usedCustomIds },
+      )
+      .getMany();
+
+    const allCards: UnifiedCard[] = [
+      ...availableRegularCards.map((c) => ({
+        id: c.card_id,
+        text: c.card_text,
+        pick: null,
+        isCustom: false,
+      })),
+      ...availableCustomCards.map((c) => ({
+        id: c.custom_card_id,
+        text: c.card_text,
+        pick: null,
+        isCustom: true,
+      })),
+    ];
+
+    const shuffled = this.shuffleArray([...allCards]);
     let cardIndex = 0;
 
     for (const player of players) {
@@ -465,9 +589,11 @@ export class CahGameRoundService {
       const cardsNeeded = session.cards_per_hand - currentHand.length;
 
       for (let i = 0; i < cardsNeeded && cardIndex < shuffled.length; i++) {
+        const card = shuffled[cardIndex];
         const handCard = manager.create(CahPlayerHandEntity, {
           session_player_id: player.session_player_id,
-          card_id: shuffled[cardIndex].card_id,
+          card_id: card.isCustom ? null : card.id,
+          custom_card_id: card.isCustom ? card.id : null,
         });
         await manager.save(handCard);
         cardIndex++;
@@ -489,30 +615,72 @@ export class CahGameRoundService {
       .where('round.session_id = :sessionId', {
         sessionId: session.session_id,
       })
+      .andWhere('round.prompt_card_id IS NOT NULL')
       .select('round.prompt_card_id')
       .getMany();
 
-    const usedIds = usedPromptIds.map((r) => r.prompt_card_id);
+    const usedCustomPromptIds = await manager
+      .createQueryBuilder(CahGameRoundEntity, 'round')
+      .where('round.session_id = :sessionId', {
+        sessionId: session.session_id,
+      })
+      .andWhere('round.custom_prompt_card_id IS NOT NULL')
+      .select('round.custom_prompt_card_id')
+      .getMany();
 
-    const availablePrompts = await this.cardRepo
+    const usedRegularIds = usedPromptIds.map((r) => r.prompt_card_id!);
+    const usedCustomIds = usedCustomPromptIds.map(
+      (r) => r.custom_prompt_card_id!,
+    );
+
+    const availableRegularPrompts = await this.cardRepo
       .createQueryBuilder('card')
       .innerJoin('card.card_set', 'cardSet')
       .where('cardSet.card_set_id IN (:...cardSetIds)', { cardSetIds })
       .andWhere('card.card_type = :type', { type: 'prompt' })
       .andWhere(
-        usedIds.length > 0 ? 'card.card_id NOT IN (:...usedIds)' : '1=1',
-        {
-          usedIds,
-        },
+        usedRegularIds.length > 0
+          ? 'card.card_id NOT IN (:...usedRegularIds)'
+          : '1=1',
+        { usedRegularIds },
       )
       .getMany();
 
-    if (availablePrompts.length === 0) {
+    const availableCustomPrompts = await manager
+      .createQueryBuilder(CahSessionCustomCardEntity, 'customCard')
+      .where('customCard.session_id = :sessionId', {
+        sessionId: session.session_id,
+      })
+      .andWhere('customCard.card_type = :type', { type: 'prompt' })
+      .andWhere(
+        usedCustomIds.length > 0
+          ? 'customCard.custom_card_id NOT IN (:...usedCustomIds)'
+          : '1=1',
+        { usedCustomIds },
+      )
+      .getMany();
+
+    const allPrompts: UnifiedCard[] = [
+      ...availableRegularPrompts.map((c) => ({
+        id: c.card_id,
+        text: c.card_text,
+        pick: c.pick,
+        isCustom: false,
+      })),
+      ...availableCustomPrompts.map((c) => ({
+        id: c.custom_card_id,
+        text: c.card_text,
+        pick: c.pick,
+        isCustom: true,
+      })),
+    ];
+
+    if (allPrompts.length === 0) {
       throw new BadRequestException('No more prompt cards available');
     }
 
     const promptCard =
-      availablePrompts[Math.floor(Math.random() * availablePrompts.length)];
+      allPrompts[Math.floor(Math.random() * allPrompts.length)];
 
     let judgeIndex = 0;
     if (previousJudgeId) {
@@ -526,7 +694,8 @@ export class CahGameRoundService {
     const round = manager.create(CahGameRoundEntity, {
       session_id: session.session_id,
       round_number: roundNumber,
-      prompt_card_id: promptCard.card_id,
+      prompt_card_id: promptCard.isCustom ? null : promptCard.id,
+      custom_prompt_card_id: promptCard.isCustom ? promptCard.id : null,
       judge_player_id: judge.session_player_id,
       status: 'submissions',
     });

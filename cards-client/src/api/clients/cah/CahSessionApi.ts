@@ -24,6 +24,12 @@ export interface ICahSession {
   createdAt: string;
 }
 
+export interface ICreateSessionCustomCard {
+  text: string;
+  cardType: 'prompt' | 'response';
+  pick?: number;
+}
+
 export interface ICreateSessionRequest {
   nickname: string;
   cardSetIds: number[];
@@ -31,6 +37,7 @@ export interface ICreateSessionRequest {
   maxPlayers?: number;
   cardsPerHand?: number;
   roundTimerSeconds?: number;
+  customCards?: ICreateSessionCustomCard[];
 }
 
 export interface ICreateSessionResponse {

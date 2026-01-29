@@ -1,5 +1,7 @@
+import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsIn,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -8,7 +10,26 @@ import {
   MaxLength,
   Min,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+import { CAHCardType } from '../../../../../types';
+
+export class CustomCardDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(500)
+  text: string;
+
+  @IsString()
+  @IsIn(['prompt', 'response'])
+  cardType: CAHCardType;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(3)
+  pick?: number;
+}
 
 export class CreateSessionDto {
   @IsString()
@@ -44,4 +65,10 @@ export class CreateSessionDto {
   @Min(30)
   @Max(300)
   roundTimerSeconds?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CustomCardDto)
+  customCards?: CustomCardDto[];
 }

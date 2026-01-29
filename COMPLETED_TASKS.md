@@ -382,3 +382,31 @@
   - NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
   - NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 - All linting passes with no errors
+
+[Task] Allow custom cards to be used in games 🎯 James Claude - COMPLETE
+- Extended CreateSessionDto to accept custom cards array during session creation:
+  - Added CustomCardDto class with text, cardType, and optional pick fields
+  - Added customCards optional array to CreateSessionDto with nested validation
+- Modified createSession() to save custom cards when creating a session:
+  - Custom cards are saved to cah_session_custom_cards table during session creation
+  - Transaction ensures atomicity with session, player, card packs, and custom cards
+- Updated entity schemas to support both regular and custom cards:
+  - CahPlayerHandEntity: Added nullable custom_card_id field
+  - CahSubmissionCardEntity: Added nullable custom_card_id field
+  - CahGameRoundEntity: Added nullable custom_prompt_card_id field
+- Updated CahGameRoundService to include custom cards in game flow:
+  - dealCardsToPlayers: Combines regular and custom response cards into unified pool
+  - drawCardsForPlayers: Includes custom response cards when refilling hands
+  - createNewRound: Includes custom prompt cards when selecting round prompts
+  - submitCards: Handles both regular and custom card submissions
+  - getCurrentRound: Includes custom_prompt_card relation
+  - getPlayerHand: Includes custom_card relation
+- Updated SubmitCardsDto to accept optional customCardIds array
+- Updated CahGameRoundModule to import CahSessionCustomCardEntity
+- Updated CahGameSessionService.getPlayerScoreHistory to handle custom cards in winning submissions
+- Frontend changes:
+  - Added ICreateSessionCustomCard interface to CahSessionApi
+  - Updated ICreateSessionRequest to include optional customCards array
+  - Updated setup page to pass custom cards when creating a session
+- All linting passes with no errors
+- All 99 server tests pass

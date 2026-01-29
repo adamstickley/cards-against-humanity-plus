@@ -8,6 +8,7 @@ import {
   CahSubmissionCardEntity,
   CahPlayerHandEntity,
   CahCardEntity,
+  CahSessionCustomCardEntity,
 } from '../../../../entities';
 import { CahGameRoundController } from './cah-game-round.controller';
 import { CahGameRoundService } from './cah-game-round.service';
@@ -22,6 +23,7 @@ import { CahGameRoundService } from './cah-game-round.service';
       CahSubmissionCardEntity,
       CahPlayerHandEntity,
       CahCardEntity,
+      CahSessionCustomCardEntity,
     ]),
   ],
   controllers: [CahGameRoundController],

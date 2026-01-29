@@ -33,7 +33,7 @@ Subtasks:
 Subtasks:
 - [Task] Create custom card submission form 📝 James Claude - COMPLETE
 - [Task] Store user-created cards in database 💾 Matilta Claude - COMPLETE
-- [Task] Allow custom cards to be used in games 🎯 James Claude - IN PROGRESS
+- [Task] Allow custom cards to be used in games 🎯 James Claude - COMPLETE
 
 [Main Feature] User authentication with Clerk
 
@@ -42,3 +42,12 @@ Subtasks:
 - [Task] Create Clerk middleware for route protection 🛡️ Billy Claude - COMPLETE
 - [Task] Add sign-in and sign-up pages 📋 Billy Claude - COMPLETE
 - [Task] Add user authentication UI to header 👤 Billy Claude - COMPLETE
+
+[Main Feature] User settings and preferences
+
+Subtasks:
+- [Task] Create user entity and sync Clerk user data to database 🔗 Billy Claude - IN PROGRESS
+- [Task] Create user preferences database schema 💾
+- [Task] Build user settings page UI ⚙️
+- [Task] Implement default game settings preferences 🎮
+- [Task] Add preferred display name for games 🏷️

@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { CahRoundSubmissionEntity } from './cah.round.submission.entity';
 import { CahCardEntity } from './cah.card.entity';
+import { CahSessionCustomCardEntity } from './cah.session.custom.card.entity';
 
 @Entity({ name: 'cah_submission_cards' })
 export class CahSubmissionCardEntity {
@@ -20,12 +21,19 @@ export class CahSubmissionCardEntity {
   @Column({ type: 'integer' })
   submission_id: number;
 
-  @ManyToOne(() => CahCardEntity)
+  @ManyToOne(() => CahCardEntity, { nullable: true })
   @JoinColumn({ name: 'card_id' })
-  card: CahCardEntity;
+  card: CahCardEntity | null;
 
-  @Column({ type: 'integer' })
-  card_id: number;
+  @Column({ type: 'integer', nullable: true })
+  card_id: number | null;
+
+  @ManyToOne(() => CahSessionCustomCardEntity, { nullable: true })
+  @JoinColumn({ name: 'custom_card_id' })
+  custom_card: CahSessionCustomCardEntity | null;
+
+  @Column({ type: 'integer', nullable: true })
+  custom_card_id: number | null;
 
   @Column({ type: 'integer', default: 0 })
   card_order: number;

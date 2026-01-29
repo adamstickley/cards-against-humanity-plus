@@ -96,6 +96,20 @@ export class CahGameSessionService {
 
       await queryRunner.manager.save(cardPacks);
 
+      if (dto.customCards && dto.customCards.length > 0) {
+        const customCards = dto.customCards.map((customCard) =>
+          queryRunner.manager.create(CahSessionCustomCardEntity, {
+            session_id: savedSession.session_id,
+            card_text: customCard.text,
+            card_type: customCard.cardType,
+            pick:
+              customCard.cardType === 'prompt' ? (customCard.pick ?? 1) : null,
+          }),
+        );
+
+        await queryRunner.manager.save(customCards);
+      }
+
       await queryRunner.commitTransaction();
 
       return { session: savedSession, player: savedPlayer };
@@ -303,9 +317,11 @@ export class CahGameSessionService {
       },
       relations: [
         'prompt_card',
+        'custom_prompt_card',
         'submissions',
         'submissions.cards',
         'submissions.cards.card',
+        'submissions.cards.custom_card',
       ],
       order: { round_number: 'ASC' },
     });
@@ -319,14 +335,17 @@ export class CahGameSessionService {
         winningSubmission?.cards
           .sort((a, b) => a.card_order - b.card_order)
           .map((c) => ({
-            cardId: c.card.card_id,
-            text: c.card.card_text,
+            cardId: c.card?.card_id ?? c.custom_card_id ?? 0,
+            text: c.card?.card_text ?? c.custom_card?.card_text ?? '',
           })) || [];
 
       return {
         roundId: round.round_id,
         roundNumber: round.round_number,
-        promptText: round.prompt_card?.card_text || '',
+        promptText:
+          round.prompt_card?.card_text ??
+          round.custom_prompt_card?.card_text ??
+          '',
         winningCards,
         wonAt: round.created_at,
       };
