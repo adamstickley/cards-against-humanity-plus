@@ -2,8 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Box, Flex, IconButton } from '@radix-ui/themes';
+import { Box, Button, Flex, IconButton } from '@radix-ui/themes';
 import { HomeIcon } from '@radix-ui/react-icons';
+import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 export const Header: React.FC = () => {
   return (
@@ -16,12 +17,22 @@ export const Header: React.FC = () => {
       asChild
     >
       <header>
-        <Flex align="center" height="100%">
+        <Flex align="center" justify="between" height="100%">
           <Link href="/">
             <IconButton variant="ghost" size="3">
               <HomeIcon width={20} height={20} />
             </IconButton>
           </Link>
+          <Flex align="center" gap="3">
+            <SignedOut>
+              <Link href="/sign-in">
+                <Button variant="soft">Sign In</Button>
+              </Link>
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </Flex>
         </Flex>
       </header>
     </Box>

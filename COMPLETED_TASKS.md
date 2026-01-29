@@ -358,3 +358,27 @@
 - Updated test file with mock repository for custom cards
 - All linting passes with no errors
 - All 99 server tests pass
+
+[Main Feature] User authentication with Clerk 🔐 Billy Claude - COMPLETE
+- Added ClerkProvider to root layout:
+  - Wrapped entire app with ClerkProvider from @clerk/nextjs
+  - Applied dark theme using @clerk/themes
+  - Extracted client-side providers (Theme, ApiProvider) to separate Providers component
+  - Root layout is now a server component for proper Clerk SSR support
+- Created Clerk middleware for route protection:
+  - Added middleware.ts with clerkMiddleware
+  - Public routes: /, /sign-in, /sign-up
+  - All other routes require authentication (auth.protect())
+  - Configured matcher for Next.js routes (excludes static files)
+- Added sign-in and sign-up pages:
+  - Created /sign-in/[[...sign-in]]/page.tsx with Clerk SignIn component
+  - Created /sign-up/[[...sign-up]]/page.tsx with Clerk SignUp component
+  - Centered layout with Radix UI Flex
+- Added user authentication UI to header:
+  - SignedOut state: Shows "Sign In" button linking to /sign-in
+  - SignedIn state: Shows Clerk UserButton with user avatar/menu
+  - Proper Clerk component integration (SignedIn, SignedOut, UserButton)
+- Added environment variables:
+  - NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+  - NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+- All linting passes with no errors
