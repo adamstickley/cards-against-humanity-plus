@@ -211,7 +211,9 @@ export class CahCardDealerService {
       relations: ['card'],
     });
 
-    return handEntries.map((entry) => entry.card);
+    return handEntries
+      .filter((entry) => entry.card !== null)
+      .map((entry) => entry.card!);
   }
 
   async removeCardsFromHand(
@@ -257,7 +259,9 @@ export class CahCardDealerService {
       where: { session_player_id: In(playerIds) },
     });
 
-    return handEntries.map((entry) => entry.card_id);
+    return handEntries
+      .filter((entry) => entry.card_id !== null)
+      .map((entry) => entry.card_id!);
   }
 
   private shuffleArray<T>(array: T[]): T[] {

@@ -29,9 +29,9 @@ export class CahGameRoundController {
         roundId: round.round_id,
         roundNumber: round.round_number,
         promptCard: {
-          cardId: fullRound!.prompt_card.card_id,
-          text: fullRound!.prompt_card.card_text,
-          pick: fullRound!.prompt_card.pick || 1,
+          cardId: fullRound!.prompt_card!.card_id,
+          text: fullRound!.prompt_card!.card_text,
+          pick: fullRound!.prompt_card!.pick || 1,
         },
         judgePlayerId: round.judge_player_id,
         status: round.status,
@@ -72,10 +72,10 @@ export class CahGameRoundController {
         roundId: round.round_id,
         roundNumber: round.round_number,
         promptCard: {
-          cardId: round.prompt_card.card_id,
-          text: round.prompt_card.card_text,
-          pick: round.prompt_card.pick || 1,
-          draw: round.prompt_card.draw,
+          cardId: round.prompt_card!.card_id,
+          text: round.prompt_card!.card_text,
+          pick: round.prompt_card!.pick || 1,
+          draw: round.prompt_card!.draw,
         },
         judge: {
           playerId: round.judge.session_player_id,
@@ -89,10 +89,11 @@ export class CahGameRoundController {
           cards:
             round.status === 'judging' || round.status === 'complete'
               ? s.cards
+                  .filter((c) => c.card !== null)
                   .sort((a, b) => a.card_order - b.card_order)
                   .map((c) => ({
-                    cardId: c.card.card_id,
-                    text: c.card.card_text,
+                    cardId: c.card!.card_id,
+                    text: c.card!.card_text,
                   }))
               : undefined,
           submittedAt: s.submitted_at,
@@ -130,10 +131,11 @@ export class CahGameRoundController {
             submissionId: s.submission_id,
             playerId: s.session_player_id,
             cards: s.cards
+              .filter((c) => c.card !== null)
               .sort((a, b) => a.card_order - b.card_order)
               .map((c) => ({
-                cardId: c.card.card_id,
-                text: c.card.card_text,
+                cardId: c.card!.card_id,
+                text: c.card!.card_text,
               })),
           })),
         );
@@ -178,10 +180,11 @@ export class CahGameRoundController {
         submissionId: dto.winningSubmissionId,
         playerId: winner.session_player_id,
         cards: winningSubmission?.cards
+          .filter((c) => c.card !== null)
           .sort((a, b) => a.card_order - b.card_order)
           .map((c) => ({
-            cardId: c.card.card_id,
-            text: c.card.card_text,
+            cardId: c.card!.card_id,
+            text: c.card!.card_text,
           })),
       },
       winner.session_player_id,
@@ -204,9 +207,9 @@ export class CahGameRoundController {
           roundId: nextRound.round_id,
           roundNumber: nextRound.round_number,
           promptCard: {
-            cardId: fullNextRound.prompt_card.card_id,
-            text: fullNextRound.prompt_card.card_text,
-            pick: fullNextRound.prompt_card.pick || 1,
+            cardId: fullNextRound.prompt_card!.card_id,
+            text: fullNextRound.prompt_card!.card_text,
+            pick: fullNextRound.prompt_card!.pick || 1,
           },
           judgePlayerId: nextRound.judge_player_id,
           status: nextRound.status,
@@ -247,10 +250,12 @@ export class CahGameRoundController {
 
     return {
       playerId,
-      cards: hand.map((h) => ({
-        cardId: h.card.card_id,
-        text: h.card.card_text,
-      })),
+      cards: hand
+        .filter((h) => h.card !== null)
+        .map((h) => ({
+          cardId: h.card!.card_id,
+          text: h.card!.card_text,
+        })),
     };
   }
 }

@@ -156,10 +156,11 @@ export class GameStateSyncService {
         playerNickname: s.player.nickname,
         cards: showCards
           ? s.cards
+              .filter((c) => c.card !== null)
               .sort((a, b) => a.card_order - b.card_order)
               .map((c) => ({
-                cardId: c.card.card_id,
-                text: c.card.card_text,
+                cardId: c.card!.card_id,
+                text: c.card!.card_text,
               }))
           : undefined,
         submittedAt: s.submitted_at,
@@ -170,9 +171,9 @@ export class GameStateSyncService {
       roundId: round.round_id,
       roundNumber: round.round_number,
       promptCard: {
-        cardId: round.prompt_card.card_id,
-        text: round.prompt_card.card_text,
-        pick: round.prompt_card.pick || 1,
+        cardId: round.prompt_card!.card_id,
+        text: round.prompt_card!.card_text,
+        pick: round.prompt_card!.pick || 1,
       },
       judgePlayerId: round.judge_player_id,
       judgeNickname: judge?.nickname || 'Unknown',
@@ -188,10 +189,12 @@ export class GameStateSyncService {
       relations: ['card'],
     });
 
-    return handEntries.map((h) => ({
-      cardId: h.card.card_id,
-      text: h.card.card_text,
-    }));
+    return handEntries
+      .filter((h) => h.card !== null)
+      .map((h) => ({
+        cardId: h.card!.card_id,
+        text: h.card!.card_text,
+      }));
   }
 
   async getPlayerHandForSession(
