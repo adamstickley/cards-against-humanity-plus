@@ -603,3 +603,17 @@
   - getPromptCardInfo: Retrieves prompt card text and pick count
   - getCardTexts: Retrieves card texts for regular and custom cards
 - All linting passes with no errors
+
+[Task] Log card events (dealt, played, discarded) 🃏 Billy Claude - COMPLETE
+- Integrated card event logging into CahCardDealerService:
+- dealInitialHands method:
+  - Logs CARDS_DEALT for each player with player info, card count, and card IDs
+- refillPlayerHand method:
+  - Logs CARDS_REFILLED when player's hand is refilled with card IDs and count
+- Notes on card lifecycle events:
+  - CARDS_DEALT: Logged when initial cards are dealt at game start
+  - CARDS_REFILLED: Logged when cards are drawn to refill hand after playing
+  - CARDS_PLAYED: Covered by ROUND_CARDS_SUBMITTED event (no separate logging needed)
+  - Discarded: No discard mechanic in current game implementation
+- Injected CahGameEventService into CahCardDealerService
+- All linting passes with no errors

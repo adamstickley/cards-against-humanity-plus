@@ -8,6 +8,7 @@ import {
   CahCardEntity,
   CahSessionCardPackEntity,
 } from '../../../../entities';
+import { CahGameEventService } from '../cah-game-event';
 
 @Injectable()
 export class CahCardDealerService {
@@ -23,6 +24,7 @@ export class CahCardDealerService {
     @InjectRepository(CahSessionCardPackEntity)
     private readonly cardPackRepo: Repository<CahSessionCardPackEntity>,
     private readonly dataSource: DataSource,
+    private readonly eventService: CahGameEventService,
   ) {}
 
   async dealInitialHands(sessionId: number): Promise<void> {
@@ -90,6 +92,22 @@ export class CahCardDealerService {
 
       await queryRunner.manager.save(handEntries);
       await queryRunner.commitTransaction();
+
+      // Log cards dealt event for each player
+      for (let i = 0; i < players.length; i++) {
+        const player = players[i];
+        const startIndex = i * cardsPerHand;
+        const playerCards = shuffledCards.slice(
+          startIndex,
+          startIndex + cardsPerHand,
+        );
+        await this.eventService.logCardsDealt(sessionId, {
+          playerId: player.session_player_id,
+          nickname: player.nickname,
+          cardCount: playerCards.length,
+          cardIds: playerCards.map((c) => c.card_id),
+        });
+      }
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;
@@ -163,7 +181,28 @@ export class CahCardDealerService {
       return [];
     }
 
-    return this.dealCardsToPlayer(playerId, cardsNeeded, sessionId);
+    const newCards = await this.dealCardsToPlayer(
+      playerId,
+      cardsNeeded,
+      sessionId,
+    );
+
+    // Log cards refilled event
+    if (newCards.length > 0) {
+      const player = await this.playerRepo.findOne({
+        where: { session_player_id: playerId },
+      });
+      if (player) {
+        await this.eventService.logCardsRefilled(sessionId, {
+          playerId,
+          nickname: player.nickname,
+          newCardCount: newCards.length,
+          newCardIds: newCards.map((c) => c.card_id),
+        });
+      }
+    }
+
+    return newCards;
   }
 
   async getPlayerHand(playerId: number): Promise<CahCardEntity[]> {
